@@ -20,7 +20,7 @@ function Signal.isSignal(object)
 end;
 
 function Signal:Fire(...)
-    if (not self._event) then return; end;
+    if (not self._event) then return nil; end;
     self._argData = table.pack(...);
     self._event:Fire();
     task.defer(function()
@@ -29,7 +29,7 @@ function Signal:Fire(...)
 end;
 
 function Signal:Connect(handler)
-    if (not self._event) then return; end;
+    if (not self._event) then return nil; end;
     if type(handler) ~= "function" then
         error(("connect(%s)"):format(typeof(handler)), 2);
     end
@@ -41,14 +41,14 @@ function Signal:Connect(handler)
 end;
 
 function Signal:Wait()
-    if (not self._event) then return; end;
+    if (not self._event) then return nil; end;
     self._event.Event:Wait();
     return table.unpack(self._argData, 1, self._argData.n);
 end;
 
 ---
 function Signal:DisconnectAll()
-    if (not self._event) then return; end;
+    if (not self._event) then return nil; end;
     for _, conn in pairs(self._event.Event:GetConnections()) do
         conn:Disconnect();
     end;
