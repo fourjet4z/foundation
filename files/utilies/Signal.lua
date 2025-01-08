@@ -8,7 +8,7 @@ local Signal = {};
 Signal.__index = Signal;
 Signal.ClassName = "Signal";
 
-function Signal.new()
+function Signal.SichNew()
     return setmetatable({
         _event = Instance.new("BindableEvent"),
         _argData = nil;
@@ -54,7 +54,7 @@ function Signal:DisconnectAll()
     end;
 end;
 
-function Signal:Destroy()
+function Signal:SichDestroy()
     if (self._event) then
         self._event:Destroy();
         self._event = nil;
