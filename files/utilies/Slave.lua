@@ -12,7 +12,7 @@ local Slave = {};
 Slave.__index = Slave;
 Slave.ClassName = "Slave";
 
-function Slave.new()
+function Slave.SichNew()
     return setmetatable({
         _tasks = {};
     }, Slave);
@@ -83,7 +83,7 @@ function Slave:RemoveTask(index)
     end;
 end;
 
-function Slave:DoCleaning()
+function Slave:RemoveAllTasks()
     local tasks = self._tasks;
 
     for index, task in pairs(tasks) do
@@ -99,9 +99,9 @@ function Slave:DoCleaning()
     end;
 end;
 
-function Slave:Destroy()
+function Slave:SichDestroy()
 	if (self._tasks) then
-		self:DoCleaning();
+		self:RemoveAllTasks();
 		self._tasks = nil;
 	end;
     setmetatable(self, nil);
