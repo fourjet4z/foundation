@@ -34,7 +34,7 @@ setmetatable(Services, {
             rawset(self, serviceName, service);
             return service;
         else;
-            error("Failed to get service: " .. tostring(serviceName));
+            error("Failed to get service: "..tostring(serviceName));
             return nil;
         end;
     end;
