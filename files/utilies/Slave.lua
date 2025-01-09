@@ -4,7 +4,7 @@
 
 
 
-local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet4z/blseoxx/refs/heads/main/files/utilies/Signal.lua"))()
+local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet4z/foundation/refs/heads/main/files/utilies/Signal.lua"))()
 
 
 
