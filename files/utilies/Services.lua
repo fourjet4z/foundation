@@ -33,7 +33,7 @@ setmetatable(Services, {
         if (success) then
             rawset(self, serviceName, service);
             return service;
-        else;
+        else
             error("Failed to get service: "..tostring(serviceName));
             return nil;
         end;
