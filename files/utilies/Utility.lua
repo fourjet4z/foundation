@@ -10,8 +10,8 @@ local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourje
 
 
 
-local Plrs, CoreGui, CollectionService = Services:Get("Players", "CoreGui", "CollectionService");
-local plrLcal = Plrs.LocalPlayer;
+local Players, CoreGui, CollectionService = Services:Get("Players", "CoreGui", "CollectionService");
+local plrLcal = Players.LocalPlayer;
 
 local Utility = {};
 
@@ -312,12 +312,12 @@ local function onPlrRemoving(plr)
     removePlrData(plr);
 end;
 
-for _, plr in next, Plrs:GetPlayers() do
+for _, plr in next, Players:GetPlayers() do
     task.spawn(onPlrAdded, plr);
 end;
 
-Plrs.PlayerAdded:Connect(onPlrAdded);
-Plrs.PlayerRemoving:Connect(onPlrRemoving);
+Players.PlayerAdded:Connect(onPlrAdded);
+Players.PlayerRemoving:Connect(onPlrRemoving);
 
 function Utility:renderOverload(data) end;
 
