@@ -345,14 +345,22 @@ function Utility.randomString()
 end;
 
 function Utility:getBasePart(obj)
-    if (IsA(obj, "BasePart")) then
-        return obj;
+    return self:getInstancesClassNameOf(obj, "BasePart", true)
+end;
+
+function Utility:getInstancesClassNameOf(obj, className, oneInstance)
+    local valids = {};
+    if (IsA(obj, className)) then
+        if oneInstance then return obj; end
+        table.insert(valids, obj);
     end;
-    for _, descendant in pairs(obj:GetDescendants()) do
-        if (IsA(descendant, "BasePart")) then
-            return descendant;
+    for _, validDescendant in pairs(obj:GetDescendants()) do
+        if (IsA(validDescendant, className)) then
+            if oneInstance then return validDescendant; end
+            table.insert(valids, validDescendant);
         end;
     end;
+    return not oneInstance and valids
 end;
 
 function Utility.find(t, c)
