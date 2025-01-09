@@ -86,15 +86,17 @@ local function onPlrCharcAdded(plr)
 
     local function onPrimaryPartChanged()
         plrData.primaryPart = charc.PrimaryPart;
-        plrData.alive = not not plrData.primaryPart;
+        plrData.alive = plrData.primaryPart ~= nil;
     end
 
     local hum = charc:WaitForChild("Humanoid", 30);
-    if (not hum) then return warn("[Utility] [onPlrCharcAdded] plr is missing humanoid " .. plr:GetFullName()) end;
+    if (not hum) then
+        warn("[Utility] [onPlrCharcAdded] player is missing humanoid: "..plr:GetFullName());
+        return;
+    end;
     if (not IsAncestorOf(game, plr) or not IsAncestorOf(game, charc)) then return; end;
 
     charc:GetPropertyChangedSignal("PrimaryPart"):Connect(onPrimaryPartChanged);
-
     if (charc.PrimaryPart) then
         onPrimaryPartChanged();
     end;
