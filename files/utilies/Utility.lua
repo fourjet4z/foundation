@@ -319,6 +319,8 @@ end;
 Plrs.PlayerAdded:Connect(onPlrAdded);
 Plrs.PlayerRemoving:Connect(onPlrRemoving);
 
+function Utility:renderOverload(data) end;
+
 function Utility:countTable(t)
     local found = 0;
 
