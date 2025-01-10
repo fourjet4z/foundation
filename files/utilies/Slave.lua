@@ -61,6 +61,7 @@ function Slave:_cleanup(task)
         end;
     elseif (typeof(task) == "thread") then
         task.cancel(task);
+        -- coroutine.close(task); --not recommend, just use task.spawn without bind it with Slave
     elseif (task.Destroy) then
         task:Destroy();
     end;
