@@ -43,7 +43,7 @@ function Utility:isTeamMate(plr)
     return plrTeam == plrLcalTeam;
 end;
 
-function Utility:getRootPart(plr)
+function Utility:getPlrRootPart(plr)
     local plrData = self:getPlrData(plr);
     return plrData and plrData.rootPart;
 end;
