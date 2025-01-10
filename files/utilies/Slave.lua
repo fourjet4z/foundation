@@ -21,9 +21,10 @@ end;
 function Slave.__index(self, index)
     if (Slave[index]) then
         return Slave[index];
-    else
-        return self._tasks[index];
+    elseif (not self._tasks[index]) then
+        self._tasks[index] = Slave.SichNew(); --able to use: slave.SichNew(); slave.yes:GiveTask(...)
     end;
+    return self._tasks[index];
 end;
 
 function Slave:__newindex(index, newTask)
@@ -53,7 +54,11 @@ function Slave:_cleanup(task)
 	elseif (Signal.isSignal(task)) then
 		task:Destroy();
 	elseif (typeof(task) == "table") then
-		task:Remove();
+        if (Slave.isSlave(task)) then
+            task:SichDestroy();
+        elseif (task.Remove) then
+            task:Remove();
+        end;
     elseif (typeof(task) == "thread") then
         task.cancel(task);
     elseif (task.Destroy) then
