@@ -51,7 +51,6 @@ function basicsHelpers.setClip(model, canCollide, canTouch) --if input propertie
                     slave:GiveTask(part.AncestryChanged:Connect(function()
                         if IsAncestorOf(model, part) then return; end;
                         modelData[model].changedParts[part] = nil;
-                        slave:SichDestroy();
                     end));
                     modelData[model].changedParts[part] = changes;
                 end;
@@ -95,32 +94,28 @@ function basicsHelpers.noPhysics(obj, options)
         end;
     end;
 
-    if (not bdVelcs[obj]) then
-        local bdVelc = Instance.new("BodyVelocity");
-        bdVelc.Name = "NoPhysics";
-        bdVelc.MaxForce = Vector3.one * math.huge;
-        bdVelc.Velocity = Vector3.zero;
-
+    if not bdVelcs[obj] then
         local slave = Slave.SichNew();
         bdVelcs[obj] = {
             slave = slave,
-            bdVelc = bdVelc
+            bdVelc = nil
         };
 
-        local function handleDestruction(readd)
-            basicsHelpers.destroyNoPhysics(obj);
-            if (readd) then basicsHelpers.noPhysics(obj, options) end;
-        end;
+        slave:GiveTask(RunService.Stepped:Connect(function()
+            local bdVelc = bdVelcs[obj].bdVelc;
+            bdVelc = bdVelc and bdVelc.Parent and IsAncestorOf(obj, bdVelc) and bdVelc or Instance.new("BodyVelocity");
+            -- bdVelc.Name = "NoPhysics";
+            bdVelc.MaxForce = Vector3.one * math.huge;
+            bdVelc.Velocity = Vector3.zero;
+            bdVelc.Parent = obj;
 
-        slave:GiveTask(obj.AncestryChanged:Connect(function()
-            handleDestruction(false);
+            bdVelcs[obj].bdVelc = bdVelc
         end));
 
-        --readd if game delete "NoPhysics"
-        slave:GiveTask(bdVelc.AncestryChanged:Connect(handleDestruction(true)));
-        slave:GiveTask(bdVelc.Destroying:Connect(handleDestruction(true)));
-
-        bdVelc.Parent = obj;
+        slave:GiveTask(obj.AncestryChanged:Connect(function()
+            if (obj.Parent or IsAncestorOf(game, obj)) then return; end;
+            basicsHelpers.destroyNoPhysics(obj);
+        end));
     end;
 end;
 
@@ -129,7 +124,9 @@ function basicsHelpers.destroyNoPhysics(obj)
     if (not bdVelcData) then return; end;
 
     bdVelcData.slave:SichDestroy();
-    bdVelcData.bdVelc:Destroy();
+    if bdVelcData.bdVelc then
+        bdVelcData.bdVelc:Destroy();
+    end;
     bdVelcs[obj] = nil;
 end;
 
