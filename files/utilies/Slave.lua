@@ -39,7 +39,7 @@ function Slave:__newindex(index, newTask)
         return;
     end;
 
-	if oldTask then
+    if oldTask then
         self:_cleanup(oldTask);
     end;
 
