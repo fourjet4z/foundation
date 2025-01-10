@@ -69,7 +69,7 @@ function basicsHelpers.setClip(model, canCollide, canTouch) --if input propertie
     end));
 end;
 
-function basicsHelpers.redoClip(model) --redo setClip, disconnect connections, clear table modelData
+function basicsHelpers.redoClip(model) --redo setClip
     local data = modelData[model];
     if (not data) then return; end;
 
