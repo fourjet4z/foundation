@@ -348,7 +348,7 @@ function Utility.lookAt(atCFrame)
     camera.CFrame = newCF;
 end;
 
-function Utility:roundVector(vector)
+function Utility:roundVector(vector) --ignore Y value, set to 0
     return Vector3.new(vector.X, 0, vector.Z);
 end;
 
