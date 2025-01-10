@@ -331,6 +331,22 @@ function Utility:countTable(t)
     return found;
 end;
 
+function Utility.isBetweenAt(pos1, po2, factorDis)
+    local betweenDis = (pos1 - po2).Magnitude
+    return factorDis and factorDis >= betweenDis, betweenDis
+end
+
+function Utility.lookAt(atCFrame)
+    local camera = workspace.CurrentCamera;
+    local cameraPos = camera.CFrame.Position;
+
+    atCFrame = typeof(atCFrame) == "Vector3" and CFrame.new(atCFrame) or CFrame.new(atCFrame.Position);
+
+    local direction = (atCFrame - cameraPos).unit;
+    local newCF = CFrame.new(cameraPos, cameraPos + direction);
+    camera.CFrame = newCF;
+end;
+
 function Utility:roundVector(vector)
     return Vector3.new(vector.X, 0, vector.Z);
 end;
