@@ -89,8 +89,10 @@ local bdVelcs = {};
 function basicsHelpers.noPhysics(obj, options)
     if (not obj.Parent or not IsAncestorOf(game, obj)) then return; end;
 
-    if (options.offset) then
-        obj.CFrame = CFrame.new(obj.CFrame.Position) * options.offset.Rotation;
+    if (options) then
+        if (options.offset) then
+            obj.CFrame = CFrame.new(obj.CFrame.Position) * options.offset.Rotation;
+        end;
     end;
 
     if (not bdVelcs[obj]) then
