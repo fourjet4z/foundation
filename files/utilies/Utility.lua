@@ -19,7 +19,7 @@ Utility.onPlrAdded = Signal.SichNew();
 Utility.onPlrCharcAdded = Signal.SichNew();
 Utility.onPlrLcalCharcAdded = Signal.SichNew();
 
-local mathFloor, IsA, IsAncestorOf = Methods:Get("math.floor", "game.IsA", "game.IsAncestorOf")
+local mathFloor, stringLower, IsA, IsAncestorOf = Methods:Get("math.floor", "string.lower", "game.IsA", "game.IsAncestorOf")
 
 local plrsData = {};
 local holder, plrsHolders = Instance.new("Folder", CoreGui), {};
@@ -60,11 +60,12 @@ local function onPlrCharcAdded(plr)
     plrData.parts = {};
 
     Utility.listenToChildAdded(charc, function(obj)
+	local objLoweredName = stringLower(obj.Name)
         if (IsA(obj, "Humanoid")) then
             plrData.hum = obj;
-        elseif (IsA(obj, "HumanoidRootPart")) then
+        elseif (objLoweredName == "humanoidrootpart") then
             plrData.rootPart = obj;
-        elseif (string.lower(obj.Name) == "head") then
+        elseif (objLoweredName == "head") then
             plrData.head = obj;
         end;
     end);
