@@ -380,6 +380,12 @@ function Utility:getInstancesClassNameOf(obj, className, oneInstance)
     return not oneInstance and valids
 end;
 
+function Utility.getSmallestSize(part)
+    if (not IsA(part, "BasePart")) then return nil; end;
+    local partSize = part.Size;
+    return math.min(partSize.X, partSize.Y, partSize.Y);
+end;
+
 function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only override key_value ~= nil
     local merged = {};
     for key, value in pairs(defaults) do
