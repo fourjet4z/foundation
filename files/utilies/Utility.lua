@@ -380,6 +380,17 @@ function Utility:getInstancesClassNameOf(obj, className, oneInstance)
     return not oneInstance and valids
 end;
 
+function Utility:mergeTables(defaults, overrides)
+    local merged = {};
+    for key, value in pairs(defaults) do
+        merged[key] = value;
+    end;
+    for key, value in pairs(overrides) do
+        merged[key] = value;
+    end;
+    return merged;
+end;
+
 function Utility.find(t, c)
     for i, v in next, t do
         if (c(v, i)) then
