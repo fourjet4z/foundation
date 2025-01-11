@@ -46,24 +46,24 @@ function Slave:__newindex(index, newTask)
     tasks[index] = newTask;
 end;
 
-function Slave:_cleanup(task)
-    if (type(task) == "function") then
-        task();
-    elseif (typeof(task) == "RBXScriptConnection") then
-        task:Disconnect();
-	elseif (Signal.isSignal(task)) then
-		task:Destroy();
-	elseif (typeof(task) == "table") then
-        if (Slave.isSlave(task)) then
-            task:SichDestroy();
-        elseif (task.Remove) then
-            task:Remove();
+function Slave:_cleanup(inputTask)
+    if (type(inputTask) == "function") then
+        --inputTask();
+    elseif (typeof(inputTask) == "RBXScriptConnection") then
+        inputTask:Disconnect();
+	elseif (Signal.isSignal(inputTask)) then
+		inputTask:Destroy();
+	elseif (typeof(inputTask) == "table") then
+	if (Slave.isSlave(inputTask)) then
+            inputTask:SichDestroy();
+        elseif (inputTask.Remove) then
+            inputTask:Remove();
         end;
-    elseif (typeof(task) == "thread") then
-        task.cancel(task);
-        -- coroutine.close(task); --not recommend, just use task.spawn without bind it with Slave
-    elseif (task.Destroy) then
-        task:Destroy();
+    elseif (typeof(inputTask) == "thread") then
+        task.cancel(inputTask);
+        -- coroutine.close(inputTask); --not recommend
+    elseif (inputTask.Destroy) then
+        inputTask:Destroy();
     end;
 end;
 
