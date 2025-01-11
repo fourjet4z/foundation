@@ -380,13 +380,17 @@ function Utility:getInstancesClassNameOf(obj, className, oneInstance)
     return not oneInstance and valids
 end;
 
-function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults)
+function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --override key_value ~= nil
     local merged = {};
     for key, value in pairs(defaults) do
         if (typeof(value) == "table" and typeof(overrides[key]) == "table") then
             merged[key] = self:mergeTables(value, overrides[key], ignoreKeyNotInDefaults);
         else
-            merged[key] = overrides[key] ~= nil and overrides[key] or value;
+            if (overrides[key] ~= nil) then
+                merged[key] = overrides[key];
+            else
+                merged[key] = value;
+            end;
         end;
     end;
     for key, value in pairs(overrides) do
