@@ -60,8 +60,8 @@ function Slave:_cleanup(inputTask)
             inputTask:Remove();
         end;
     elseif (typeof(inputTask) == "thread") then
-        task.cancel(inputTask);
-        -- coroutine.close(inputTask); --not recommend
+        -- task.cancel(inputTask); --not recommend use coroutine functions instead
+        coroutine.close(inputTask);
     elseif (inputTask.Destroy) then
         inputTask:Destroy();
     end;
