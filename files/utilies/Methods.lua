@@ -20,9 +20,9 @@ function Methods:Get(...)
             if (typeof(method) ~= "function") then
                 error("Failed to get Method - not a Function: "..tostring(method));
                 return nil;
-            end
+            end;
             return method;
-        end
+        end;
         return nil;
     end;
 
