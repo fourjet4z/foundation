@@ -85,53 +85,53 @@ function basicsHelpers.redoClip(model) --redo setClip
 end;
 
 local bdVelcs = {};
-function basicsHelpers.noPhysics(obj, options)
-    if (not obj.Parent or not IsAncestorOf(game, obj)) then return; end;
+function basicsHelpers.noPhysics(part, options)
+    if (not part.Parent or not IsAncestorOf(game, part)) then return; end;
 
     if (options) then
         if (options.offset) then
-            obj.CFrame = CFrame.new(obj.CFrame.Position) * options.offset.Rotation;
+            part.CFrame = CFrame.new(part.CFrame.Position) * options.offset.Rotation;
         end;
     end;
 
-    if not bdVelcs[obj] then
+    if not bdVelcs[part] then
         local slave = Slave.SichNew();
-        bdVelcs[obj] = {
+        bdVelcs[part] = {
             slave = slave,
             bdVelc = nil
         };
 
         slave:GiveTask(RunService.Stepped:Connect(function()
-            local bdVelc = bdVelcs[obj].bdVelc;
-            bdVelc = bdVelc and bdVelc.Parent and IsAncestorOf(obj, bdVelc) and bdVelc or Instance.new("BodyVelocity");
+            local bdVelc = bdVelcs[part].bdVelc;
+            bdVelc = bdVelc and bdVelc.Parent and IsAncestorOf(part, bdVelc) and bdVelc or Instance.new("BodyVelocity");
             -- bdVelc.Name = "NoPhysics";
             bdVelc.MaxForce = Vector3.one * math.huge;
             bdVelc.Velocity = Vector3.zero;
-            bdVelc.Parent = obj;
+            bdVelc.Parent = part;
 
-            bdVelcs[obj].bdVelc = bdVelc
+            bdVelcs[part].bdVelc = bdVelc
         end));
 
-        slave:GiveTask(obj.AncestryChanged:Connect(function()
-            if (obj.Parent or IsAncestorOf(game, obj)) then return; end;
-            basicsHelpers.destroyNoPhysics(obj);
+        slave:GiveTask(part.AncestryChanged:Connect(function()
+            if (part.Parent or IsAncestorOf(game, part)) then return; end;
+            basicsHelpers.destroyNoPhysics(part);
         end));
     end;
 end;
 
-function basicsHelpers.destroyNoPhysics(obj)
-    local bdVelcData = bdVelcs[obj];
+function basicsHelpers.destroyNoPhysics(part)
+    local bdVelcData = bdVelcs[part];
     if (not bdVelcData) then return; end;
 
     bdVelcData.slave:SichDestroy();
     if bdVelcData.bdVelc then
         bdVelcData.bdVelc:Destroy();
     end;
-    bdVelcs[obj] = nil;
+    bdVelcs[part] = nil;
 end;
 
-function basicsHelpers.destroyPhysics(obj)
-    local localBdVelcs = Utility:getInstancesClassNameOf(obj, "BodyVelocity", false) or {};
+function basicsHelpers.destroyPhysics(part)
+    local localBdVelcs = Utility:getInstancesClassNameOf(part, "BodyVelocity", false) or {};
     for _, bdVelc in pairs(localBdVelcs) do
         bdVelc:Destroy();
     end;
