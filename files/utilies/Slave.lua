@@ -48,7 +48,7 @@ end;
 
 function Slave:_cleanup(inputTask)
     if (type(inputTask) == "function") then
-        --inputTask();
+        inputTask();
     elseif (typeof(inputTask) == "RBXScriptConnection") then
         inputTask:Disconnect();
 	elseif (Signal.isSignal(inputTask)) then
