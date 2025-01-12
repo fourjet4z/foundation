@@ -54,14 +54,20 @@ function Slave:_cleanup(inputTask)
 	elseif (Signal.isSignal(inputTask)) then
 		inputTask:Destroy();
 	elseif (typeof(inputTask) == "table") then
-	if (Slave.isSlave(inputTask)) then
+	    if (Slave.isSlave(inputTask)) then
             inputTask:SichDestroy();
         elseif (inputTask.Remove) then
             inputTask:Remove();
         end;
     elseif (typeof(inputTask) == "thread") then
-        -- task.cancel(inputTask); --not recommend, use coroutine functions instead
-        coroutine.close(inputTask);
+        task.spawn(function()
+            repeat task.wait()
+                pcall(function()
+                    coroutine.close(inputTask)
+                    task.cancel(inputTask)
+                end)
+            until coroutine.status(inputTask) == "dead"
+        end)
     elseif (inputTask.Destroy) then
         inputTask:Destroy();
     end;
