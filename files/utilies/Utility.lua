@@ -19,7 +19,7 @@ local mathFloor, stringLower, IsA, IsAncestorOf = Methods:Get("math.floor", "str
 
 function Utility:getPlr(plr)
     if (not plr) then return; end;
-    return Players:FindFirstChild(plr)
+    return Players:FindFirstChild(tostring(plr))
 end
 
 function Utility:isPlrTeamate() end --custom needed
