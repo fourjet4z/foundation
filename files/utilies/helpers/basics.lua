@@ -86,7 +86,7 @@ end;
 
 local bdVelcs = {};
 function basicsHelpers.noPhysics(part, options)
-    if (not part.Parent or not IsAncestorOf(game, part)) then return; end;
+    if (not part or not part.Parent or not IsA(part, "BasePart") or not IsAncestorOf(game, part)) then return; end;
 
     if (options) then
         if (options.offset) then
