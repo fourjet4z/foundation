@@ -16,7 +16,14 @@ function Methods:Get(...)
         local success, method = pcall(function()
             return source[key];
         end);
-        return success and typeof(method) == "function" and method or nil;
+        if (success) then
+            if (typeof(method) ~= "function") then
+                error("Failed to get Method - not a Function: "..tostring(method));
+                return nil;
+            end
+            return method;
+        end
+        return nil;
     end;
 
     for _, methodName in ipairs(methods) do
