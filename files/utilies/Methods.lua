@@ -12,13 +12,13 @@ function Methods:Get(...)
     local methods = {...};
     local functions = {};
 
-    local function getMethod(source, key)
+    local function getMethod(source, key, name)
         local success, method = pcall(function()
             return source[key];
         end);
         if (success) then
             if (typeof(method) ~= "function") then
-                error("Failed to get Method - not a Function: "..tostring(method));
+                error(("Failed to get Method - not a Function: %s"):format(name));
                 return nil;
             end;
             return method;
@@ -35,11 +35,11 @@ function Methods:Get(...)
 
             local source = sources[tableName];
             if (source) then
-                func = getMethod(source, methodKey);
+                func = getMethod(source, methodKey, methodName);
             end;
         else
             for _, source in pairs(sources) do
-                func = getMethod(source, methodName);
+                func = getMethod(source, methodName, methodName);
                 if (func) then break; end;
             end;
         end;
@@ -47,7 +47,7 @@ function Methods:Get(...)
         if (func) then
             table.insert(functions, func); -- clonefunction(func)
         else
-            error("Failed to get Method: "..tostring(methodName));
+            error(("Failed to get Method: %s"):format(methodName));
         end;
     end;
 
