@@ -21,10 +21,9 @@ end;
 function Slave.__index(self, index)
     if (Slave[index]) then
         return Slave[index];
-    elseif (not self._tasks[index]) then
-        self._tasks[index] = Slave.SichNew(); --able to use: slave.SichNew(); slave.yes:GiveTask(...)
+    else
+        return self._tasks[index];
     end;
-    return self._tasks[index];
 end;
 
 function Slave:__newindex(index, newTask)
@@ -51,14 +50,10 @@ function Slave:_cleanup(inputTask)
         inputTask();
     elseif (typeof(inputTask) == "RBXScriptConnection") then
         inputTask:Disconnect();
-	elseif (Signal.isSignal(inputTask)) then
-		inputTask:Destroy();
 	elseif (typeof(inputTask) == "table") then
-	    if (Slave.isSlave(inputTask)) then
-            inputTask:SichDestroy();
-        elseif (inputTask.Remove) then
-            inputTask:Remove();
-        end;
+	    inputTask:Remove();
+    elseif (Signal.isSignal(inputTask)) then
+		inputTask:Destroy();
     elseif (typeof(inputTask) == "thread") then
         task.spawn(function()
             repeat task.wait()
