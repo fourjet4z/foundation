@@ -15,7 +15,7 @@ local plrLcal = Players.LocalPlayer;
 
 local Utility = {};
 
-local mathFloor, stringLower, IsA, IsAncestorOf = Methods:Get("math.floor", "string.lower", "game.IsA", "game.IsAncestorOf")
+local mathFloor, stringFind, stringLower, IsA, IsAncestorOf = Methods:Get("math.floor", "string.find", "string.lower", "game.IsA", "game.IsAncestorOf")
 
 function Utility:getPlr(plr)
     if (not plr) then return; end;
@@ -214,12 +214,12 @@ end;
 
 function Utility:getDescendantsIncludeName(obj, name, selfInstance, oneInstance)
     local valids = {};
-    if (selfInstance and stringLower(obj.Name, name)) then
+    if (selfInstance and stringFind(stringLower(obj.Name, name))) then
         if oneInstance then return obj; end
         table.insert(valids, obj);
     end;
     for _, validDescendant in pairs(obj:GetDescendants()) do
-        if (stringLower(validDescendant.Name, name)) then
+        if (stringFind(stringLower(validDescendant.Name, name))) then
             if oneInstance then return validDescendant; end
             table.insert(valids, validDescendant);
         end;
@@ -229,12 +229,12 @@ end;
 
 function Utility:geChildrenIncludeName(obj, name, selfInstance, oneInstance)
     local valids = {};
-    if (selfInstance and stringLower(obj.Name, name)) then
+    if (selfInstance and stringFind(stringLower(obj.Name, name))) then
         if oneInstance then return obj; end
         table.insert(valids, obj);
     end;
     for _, validChild in pairs(obj:GetChildren()) do
-        if (stringLower(validChild.Name, name)) then
+        if (stringFind(stringLower(validChild.Name, name))) then
             if oneInstance then return validChild; end
             table.insert(valids, validChild);
         end;
