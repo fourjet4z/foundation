@@ -209,12 +209,42 @@ function Utility.randomString()
 end;
 
 function Utility:getBasePart(obj)
-    return self:getInstancesClassNameOf(obj, "BasePart", true)
+    return self:getDescendantsIncludeClassName(obj, "BasePart", true, true)
 end;
 
-function Utility:getInstancesClassNameOf(obj, className, oneInstance)
+function Utility:getDescendantsIncludeName(obj, name, selfInstance, oneInstance)
     local valids = {};
-    if (IsA(obj, className)) then
+    if (selfInstance and stringLower(obj.Name, name)) then
+        if oneInstance then return obj; end
+        table.insert(valids, obj);
+    end;
+    for _, validDescendant in pairs(obj:GetDescendants()) do
+        if (stringLower(validDescendant.Name, name)) then
+            if oneInstance then return validDescendant; end
+            table.insert(valids, validDescendant);
+        end;
+    end;
+    return not oneInstance and valids
+end;
+
+function Utility:geChildrenIncludeName(obj, name, selfInstance, oneInstance)
+    local valids = {};
+    if (selfInstance and stringLower(obj.Name, name)) then
+        if oneInstance then return obj; end
+        table.insert(valids, obj);
+    end;
+    for _, validChild in pairs(obj:GetChildren()) do
+        if (stringLower(validChild.Name, name)) then
+            if oneInstance then return validChild; end
+            table.insert(valids, validChild);
+        end;
+    end;
+    return not oneInstance and valids
+end;
+
+function Utility:getDescendantsIncludeClassName(obj, className, selfInstance, oneInstance)
+    local valids = {};
+    if (selfInstance and IsA(obj, className)) then
         if oneInstance then return obj; end
         table.insert(valids, obj);
     end;
@@ -222,6 +252,21 @@ function Utility:getInstancesClassNameOf(obj, className, oneInstance)
         if (IsA(validDescendant, className)) then
             if oneInstance then return validDescendant; end
             table.insert(valids, validDescendant);
+        end;
+    end;
+    return not oneInstance and valids
+end;
+
+function Utility:getChildrenIncludeClassName(obj, className, selfInstance, oneInstance)
+    local valids = {};
+    if (selfInstance and IsA(obj, className)) then
+        if oneInstance then return obj; end
+        table.insert(valids, obj);
+    end;
+    for _, validChild in pairs(obj:GetChildren()) do
+        if (IsA(validChild, className)) then
+            if oneInstance then return validChild; end
+            table.insert(valids, validChild);
         end;
     end;
     return not oneInstance and valids
