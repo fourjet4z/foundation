@@ -70,6 +70,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
         tweenSpeedIgnoreY = false,
         instant = false,
         offset = CFrame.identity * rootPart.CFrame.Rotation, --(offset while twennin)/(default:) LocalPlayer HumanoidRootPart Rotation
+	followCamera = false,
         advance = { --advanced tween logic with high customization
             value = false, --true: normal tween / false: advanced tween logic
             states = {
