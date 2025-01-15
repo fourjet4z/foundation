@@ -209,7 +209,7 @@ function Utility.randomString()
 end;
 
 function Utility:getBasePart(obj)
-    return self:getDescendantsIncludeClassName(obj, "BasePart", true, true)
+    return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
 end;
 
 function Utility:getinstanceWithGetDescendantsOf(obj, instance)
@@ -228,7 +228,7 @@ function Utility:getinstanceWithGetChildrenOf(obj, instance)
     end;
 end;
 
-function Utility:getDescendantsIncludeName(obj, name, selfInstance, oneInstance)
+function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstance)
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
         if oneInstance then return obj; end
@@ -243,7 +243,7 @@ function Utility:getDescendantsIncludeName(obj, name, selfInstance, oneInstance)
     return not oneInstance and valids
 end;
 
-function Utility:geChildrenIncludeName(obj, name, selfInstance, oneInstance)
+function Utility:geChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
         if oneInstance then return obj; end
@@ -258,7 +258,7 @@ function Utility:geChildrenIncludeName(obj, name, selfInstance, oneInstance)
     return not oneInstance and valids
 end;
 
-function Utility:getDescendantsIncludeClassName(obj, className, selfInstance, oneInstance)
+function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
         if oneInstance then return obj; end
@@ -273,7 +273,7 @@ function Utility:getDescendantsIncludeClassName(obj, className, selfInstance, on
     return not oneInstance and valids
 end;
 
-function Utility:getChildrenIncludeClassName(obj, className, selfInstance, oneInstance)
+function Utility:getChildrenIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
         if oneInstance then return obj; end
