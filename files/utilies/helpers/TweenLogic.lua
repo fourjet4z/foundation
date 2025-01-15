@@ -26,7 +26,10 @@ local bigSlave = Slave.SichNew()
 
 local model, rootPart, hum = nil, nil, nil
 
-local tween = nil
+local tweenData = {
+    tween = nil,
+    options = {}
+}
 
 local function getTweenLerpSteppPos(startPos, endPos, totalT, elapsedT)
     local percentComplete = math.min(elapsedT / totalT, 1)
@@ -40,8 +43,8 @@ local function isHasRequiredInstances()
     and IsA(model, "Model") and IsA(rootPart, "BasePart") and IsA(hum, "Humanoid")
 end
 
-function Tween:getRunningTween()
-    return tween
+function Tween:getRunningTweenData()
+    return tweenData
 end
 
 --override/multi function callable
@@ -61,6 +64,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     else
         nextState = 1
     end
+    tweenData.options = options
 
     goalCFrame = typeof(goalCFrame) == "Vector3" and CFrame.new(goalCFrame) or CFrame.new(goalCFrame.Position)
 
@@ -122,22 +126,22 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
 
     local function tweenPlay()
         local tweenInfo = TweenInfo.new(getTweenTimeLeft(), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
-        tween = TweenService:Create(rootPart, tweenInfo, {CFrame = goalCFrame});
+        tweenData.tween = TweenService:Create(rootPart, tweenInfo, {CFrame = goalCFrame});
         if not options.advance.value then
-            tween.Completed:Connect(function(playbackState)
+            tweenData.tween.Completed:Connect(function(playbackState)
                 if playbackState == Enum.PlaybackState.Cancelled then return; end;
-                tween = nil
+                tweenData = {}
             end)
         end
-        tween:Play()
+        tweenData.tween:Play()
     end
 
     local function tweenPause()
-        if tween then tween:Pause() end
+        if tweenData.tween then tweenData.tween:Pause() end
     end
 
     local function tweenCancel()
-        if tween then tween:Cancel() end
+        if tweenData.tween then tweenData.tween:Cancel() end
     end
 
     local function getStates()
@@ -204,7 +208,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
             while task.wait() do
                 if (not isHasRequiredInstances()) then
                     tweenCancel()
-                    tween = nil
+                    tweenData = nil
                     bigSlave.tween = nil
                     return;
                 end;
@@ -215,7 +219,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
                 or rootPart.CFrame == goalCFrame) then
                     tweenCancel()
                     rootPart.CFrame = goalCFrame
-                    tween = nil
+                    tweenData = nil
                     done = true
                     bigSlave.tween = nil
                     return
@@ -251,18 +255,18 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     else
         tweenPlay()
     end
-    repeat task.wait() until tween or done
-    return tween
+    repeat task.wait() until tweenData.tween or done
+    return tweenData.tween
 end;
 
 function Tween.destroyTweens()
     if bigSlave.tween then
         bigSlave.tween = nil
     end
-    if tween then
-        tween:Cancel()
+    if tweenData.tween then
+        tweenData.tween:Cancel()
     end
-    tween = nil
+    tweenData = nil
 end;
 
 function Tween.turnOffAutoFarm()
@@ -436,7 +440,7 @@ function Tween:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
             if action then
                 local point = action.func(data.name, path, i)
                 repeat task.wait()
-                until not tween
+                until not self:getRunningTweenData().tween
 
 				local savedTick = 0
 				if data.action ~= "normal" then
