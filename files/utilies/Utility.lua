@@ -212,6 +212,22 @@ function Utility:getBasePart(obj)
     return self:getDescendantsIncludeClassName(obj, "BasePart", true, true)
 end;
 
+function Utility:getinstanceWithGetDescendantsOf(obj, instance)
+    for _, descendant in pairs(obj:GetDescendants()) do
+        if (descendant == instance) then
+            return descendant;
+        end;
+    end;
+end;
+
+function Utility:getinstanceWithGetChildrenOf(obj, instance)
+    for _, child in pairs(obj:GetChildren()) do
+        if (child == instance) then
+            return child;
+        end;
+    end;
+end;
+
 function Utility:getDescendantsIncludeName(obj, name, selfInstance, oneInstance)
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
