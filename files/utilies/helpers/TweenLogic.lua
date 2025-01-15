@@ -28,6 +28,7 @@ local model, rootPart, hum = nil, nil, nil
 
 local tweenData = {
     tween = nil,
+    goal = nil,
     options = {}
 }
 
@@ -58,13 +59,15 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
         return;
     end;
 
+    tweenData.goal = goalCFrame
+    tweenData.options = options
+
     if bigSlave.tween then
         bigSlave.tween = nil
         nextState = nextState
     else
         nextState = 1
     end
-    tweenData.options = options
 
     goalCFrame = typeof(goalCFrame) == "Vector3" and CFrame.new(goalCFrame) or CFrame.new(goalCFrame.Position)
 
