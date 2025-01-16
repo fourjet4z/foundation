@@ -507,14 +507,16 @@ function Tween:through(m, rp, hu, list, goalCFrame, options)
 
     isMoving = true
     bigSlave.through = task.spawn(function()
-        self:travel(m, rp, hu, list, Tween.getClosestIsland(list, goalCFrame), options, true, false)
+        if list and next(list) then
+            self:travel(m, rp, hu, list, Tween.getClosestIsland(list, goalCFrame), options, true, false)
+        end
         while task.wait() do
             if not isHasRequiredInstances() then
                 Tween.destroyTweens()
                 bigSlave.through = nil
                 return
             end
-            if not bigSlave.travel and (not tweenData.tween or not isTweenRunning) or not isMoving then
+            if not bigSlave.travel and (not tweenData.tween or not isTweenRunning) or not isMoving or not list or not next(list) then
                 self:tweenTeleport(m, rp, hu, goalCFrame, options)
                 repeat task.wait() until not self:getRunningTweenData().tween
                 bigSlave.through = nil
@@ -592,6 +594,9 @@ return Tween;
 --        },
 --    },
 --}
+
+--local Players = Services:Get("Players");
+--local plrLcal = Players.LocalPlayer
 
 --local plrLcalCharc = Utility:getPlrCharc(plrLcal)
 --local plrLcalRootPart = plrLcalCharc["HumanoidRootPart"]
