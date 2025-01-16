@@ -243,7 +243,7 @@ function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstanc
     return not oneInstance and valids
 end;
 
-function Utility:geChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
+function Utility:getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
         if oneInstance then return obj; end
