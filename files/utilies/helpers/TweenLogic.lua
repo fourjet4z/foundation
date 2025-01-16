@@ -32,6 +32,11 @@ local tweenData = {
     options = {}
 }
 
+local isTraveling = false
+local isThroughing = false
+local isTweenRunning = false
+local lastStartAdvanceTweenTick, nextStateStartAtTick, nextState = nil, nil, nil
+
 local function getTweenLerpSteppPos(startPos, endPos, totalT, elapsedT)
     local percentComplete = math.min(elapsedT / totalT, 1)
     return startPos:Lerp(endPos, percentComplete)
@@ -48,9 +53,10 @@ function Tween:getRunningTweenData()
     return tweenData
 end
 
-local isMoving = false
-local isTweenRunning = false
-local lastStartAdvanceTweenTick, nextStateStartAtTick, nextState = nil, nil, nil
+function Tween:isRunning()
+    return isTweenRunning or isTraveling or isThroughing or false
+end
+
 --override/multi function callable
 function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     model = m
@@ -60,6 +66,8 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
         Tween.destroyTweens()
         return;
     end;
+
+    isTweenRunning = true
 
     tweenData.goal = goalCFrame
     tweenData.options = options
@@ -194,7 +202,6 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
 
     if options.followCamera then Utility.lookAt(goalCFrame) end
 
-    isTweenRunning = true
     if options.advance.value then
         if options.advance.skipTweenToEnd.activeAfterStartTweenTime then
             if lastStartAdvanceTweenTick and lastStartAdvanceTweenTick <= options.advance.skipTweenToEnd.activeAfterStartTweenTime + tick() then
@@ -428,8 +435,14 @@ function Tween:travel(m, rp, hu, list, target, options, onlyGoThroughDoor, goCen
         return;
     end;
 
+    isTraveling = true
+
     if bigSlave.travel then
         bigSlave.travel = nil
+    end
+    if bigSlave.through then
+        bigSlave.through = nil
+        isThroughing = false
     end
 
     local path = Tween.getPath(list, Tween.getClosestIsland(list, rootPart.CFrame), target, goCentralAfterDoor)
@@ -438,7 +451,6 @@ function Tween:travel(m, rp, hu, list, target, options, onlyGoThroughDoor, goCen
         return
     end
 
-    isMoving = true
     bigSlave.travel = task.spawn(function()
         for i, data in ipairs(path) do
             local action = actions[data.action]
@@ -475,10 +487,10 @@ function Tween:travel(m, rp, hu, list, target, options, onlyGoThroughDoor, goCen
                 end
             end
         end
-        isMoving = false
+        isTraveling = false
         bigSlave.travel = nil
     end)
-    repeat task.wait() until tweenData.tween or not isMoving
+    repeat task.wait() until tweenData.tween or not isTraveling
 end
 
 function Tween:stopTravel()
@@ -487,6 +499,7 @@ function Tween:stopTravel()
     end
     Tween.destroyTweens()
     Helpers.basics.destroyNoPhysics(rootPart);
+    isTraveling = false
 end
 
 --override/multi function callable
@@ -499,13 +512,18 @@ function Tween:through(m, rp, hu, list, goalCFrame, options)
         return;
     end;
 
+    isThroughing = true
+
     if bigSlave.through then
         bigSlave.through = nil
+    end
+    if bigSlave.travel then
+        bigSlave.travel = nil
+        isTraveling = false
     end
 
     goalCFrame = typeof(goalCFrame) == "Vector3" and CFrame.new(goalCFrame) or CFrame.new(goalCFrame.Position)
 
-    isMoving = true
     bigSlave.through = task.spawn(function()
         if list and next(list) then
             self:travel(m, rp, hu, list, Tween.getClosestIsland(list, goalCFrame), options, true, false)
@@ -516,15 +534,15 @@ function Tween:through(m, rp, hu, list, goalCFrame, options)
                 bigSlave.through = nil
                 return
             end
-            if not bigSlave.travel and (not tweenData.tween or not isTweenRunning) or not isMoving or not list or not next(list) then
+            if not isTraveling or not list or not next(list) then
                 self:tweenTeleport(m, rp, hu, goalCFrame, options)
                 repeat task.wait() until not self:getRunningTweenData().tween
                 bigSlave.through = nil
-                isMoving = false
+                isThroughing = false
             end
         end
     end)
-    repeat task.wait() until tweenData.tween or not isMoving
+    repeat task.wait() until tweenData.tween or not isThroughing
 end
 
 function Tween:stopThrough()
@@ -533,6 +551,7 @@ function Tween:stopThrough()
     end
     Tween.destroyTweens()
     Helpers.basics.destroyNoPhysics(rootPart);
+    isThroughing = false
 end
 
 return Tween;
