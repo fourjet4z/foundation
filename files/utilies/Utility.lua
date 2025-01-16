@@ -319,6 +319,10 @@ function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only
     return merged;
 end;
 
+function Utility.toStringOr(value, expect)
+    return value and tostring(value) or expect;
+end;
+
 function Utility.find(t, c)
     for i, v in next, t do
         if (c(v, i)) then
