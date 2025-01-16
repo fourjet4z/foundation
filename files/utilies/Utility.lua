@@ -190,7 +190,7 @@ function Utility.lookAt(atCFrame)
 
     atCFrame = typeof(atCFrame) == "Vector3" and CFrame.new(atCFrame) or CFrame.new(atCFrame.Position);
 
-    local direction = (atCFrame - cameraPos).unit;
+    local direction = (atCFrame.Position - cameraPos).unit;
     local newCF = CFrame.new(cameraPos, cameraPos + direction);
     camera.CFrame = newCF;
 end;
