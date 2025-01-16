@@ -319,6 +319,18 @@ function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only
     return merged;
 end;
 
+function Utility.getAllParents(obj)
+    if (not obj or not obj.Parent) then return; end;
+    local parents = {};
+    local function collectParent(current)
+        if (not current or not current.Parent) then return; end;
+        table.insert(parents, current.Parent.Name);
+        collectParent(current.Parent);
+    end;
+    collectParent(obj);
+    return parents;
+end
+
 function Utility.toStringOr(value, expect)
     return value and tostring(value) or expect;
 end;
