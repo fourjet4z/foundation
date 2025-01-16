@@ -53,7 +53,7 @@ function Tween:getRunningTweenData()
     return tweenData
 end
 
-function Tween:isRunning()
+function Tween.isRunning()
     return isTweenRunning or isTraveling or isThroughing or false
 end
 
