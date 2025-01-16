@@ -48,8 +48,10 @@ function Tween:getRunningTweenData()
     return tweenData
 end
 
---override/multi function callable
+local isMoving = false
+local isTweenRunning = false
 local lastStartAdvanceTweenTick, nextStateStartAtTick, nextState = nil, nil, nil
+--override/multi function callable
 function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     model = m
     rootPart = rp
@@ -76,8 +78,8 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
         tweenSpeed = 100,
         tweenSpeedIgnoreY = false,
         instant = false,
-        offset = CFrame.identity * rootPart.CFrame.Rotation, --(offset while twennin)/(default:) LocalPlayer HumanoidRootPart Rotation
-	followCamera = false,
+        offset = nil, --(offset while twennin)/(default: LocalPlayer HumanoidRootPart Rotation)
+	    followCamera = false, --camera look at goalCFrame once time when tween start
         advance = { --advanced tween logic with high customization
             value = false, --true: normal tween / false: advanced tween logic
             states = {
@@ -110,8 +112,6 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     --return new table with combined options
     options = Utility:mergeTables(defaults, options or {}, true)
 
-    goalCFrame =  goalCFrame * options.offset
-
     if (options.instant) then
         options.tweenSpeed = 5000;
     end;
@@ -128,16 +128,15 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     end
 
     local function tweenPlay()
+        goalCFrame =  goalCFrame * (options.offset or CFrame.identity * rootPart.CFrame.Rotation);
         local tweenInfo = TweenInfo.new(getTweenTimeLeft(), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
         tweenData.tween = TweenService:Create(rootPart, tweenInfo, {CFrame = goalCFrame});
-        if not options.advance.value then
-            tweenData.tween.Completed:Connect(function(playbackState)
-                if playbackState == Enum.PlaybackState.Cancelled then return; end;
-                tweenData = {}
-            end)
-        end
-        tweenData.tween:Play()
-    end
+        tweenData.tween.Completed:Connect(function(playbackState)
+            if playbackState == Enum.PlaybackState.Cancelled then return; end;
+            Tween.destroyTweens();
+        end);
+        tweenData.tween:Play();
+    end;
 
     local function tweenPause()
         if tweenData.tween then tweenData.tween:Pause() end
@@ -195,7 +194,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
 
     if options.followCamera then Utility.lookAt(goalCFrame) end
 
-    local done = false
+    isTweenRunning = true
     if options.advance.value then
         if options.advance.skipTweenToEnd.activeAfterStartTweenTime then
             if lastStartAdvanceTweenTick and lastStartAdvanceTweenTick <= options.advance.skipTweenToEnd.activeAfterStartTweenTime + tick() then
@@ -208,22 +207,23 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
         end
         bigSlave.tween = task.spawn(function()
             local tweenDefault = false
+            local lastState = nil
             while task.wait() do
                 if (not isHasRequiredInstances()) then
                     tweenCancel()
-                    tweenData = nil
+                    tweenData = {}
+                    isTweenRunning = false
                     bigSlave.tween = nil
                     return;
                 end;
 
                 if (options.advance.skipTweenToEnd.value
                 and Utility.isBetweenAt(rootPart.Position, goalCFrame.Position, options.advance.skipTweenToEnd.distance)
-                and tick() >= lastStartAdvanceTweenTick + options.advance.skipTweenToEnd.activeAfterStartTweenTime
-                or rootPart.CFrame == goalCFrame) then
+                and tick() >= lastStartAdvanceTweenTick + options.advance.skipTweenToEnd.activeAfterStartTweenTime) then
                     tweenCancel()
                     rootPart.CFrame = goalCFrame
-                    tweenData = nil
-                    done = true
+                    tweenData = {}
+                    isTweenRunning = false
                     bigSlave.tween = nil
                     return
                 elseif (options.advance.tweenDefaultToEnd.value
@@ -242,10 +242,11 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
                     end
                 end
 
-                if not tweenDefault then
+                if not tweenDefault and lastState ~= nextState then
                     if tick() >= (nextStateStartAtTick or 0) then
                         if nextState then
                             states[nextState].func()
+                            lastState = nextState
                             nextStateStartAtTick = tick() + states[nextState].waitTime
                             nextState = (nextState % #states) + 1
                         else
@@ -258,7 +259,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     else
         tweenPlay()
     end
-    repeat task.wait() until tweenData.tween or done
+    repeat task.wait() until tweenData.tween or not isTweenRunning
     return tweenData.tween
 end;
 
@@ -269,7 +270,8 @@ function Tween.destroyTweens()
     if tweenData.tween then
         tweenData.tween:Cancel()
     end
-    tweenData = nil
+    tweenData = {}
+    isTweenRunning = false
 end;
 
 function Tween.turnOffAutoFarm()
@@ -370,7 +372,7 @@ function Tween.getClosestIsland(list, inputCFrame)
 end
 
 --override/multi function callable
-function Tween:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
+function Tween:travel(m, rp, hu, list, target, options, onlyGoThroughDoor, goCentralAfterDoor)
     local actions = {
         ["normal"] = {
             func = function(island_name)
@@ -379,7 +381,7 @@ function Tween:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
                     warn(island_name.." is missing value: centralCFrame")
                     return
                 end
-                Tween:tweenTeleport(m, rp, hu, island_info.centralCFrame, options)
+                self:tweenTeleport(m, rp, hu, island_info.centralCFrame, options)
                 return island_info.centralCFrame
             end,
             description = "to island"
@@ -389,9 +391,9 @@ function Tween:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
                 local island_info = list[island_name]
                 local island_next_step = path[i + 1]
                 if island_next_step then
-                    local data = island_info.order.previous[island_next_step.name]
+                    local data = island_info.order.prev[island_next_step.name]
                     if data and data.positionEnter then
-                        Tween:tweenTeleport(m, rp, hu, data.positionEnter, options)
+                        self:tweenTeleport(m, rp, hu, data.positionEnter, options)
                         return data.positionEnter
                     else
                         warn(island_name.." is missing value: positionEnter for "..island_next_step.name)
@@ -407,7 +409,7 @@ function Tween:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
                 if island_next_step then
                     local data = island_info.order.next[island_next_step.name]
                     if data and data.positionEnter then
-                        Tween:tweenTeleport(m, rp, hu, data.positionEnter, options)
+                        self:tweenTeleport(m, rp, hu, data.positionEnter, options)
                         return data.positionEnter
                     else
                         warn(island_name.." is missing value: positionEnter for "..island_next_step.name)
@@ -436,14 +438,14 @@ function Tween:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
         return
     end
 
+    isMoving = true
     bigSlave.travel = task.spawn(function()
         for i, data in ipairs(path) do
             local action = actions[data.action]
-
             if action then
+                if onlyGoThroughDoor and data.action == "normal" then continue; end;
                 local point = action.func(data.name, path, i)
-                repeat task.wait()
-                until not self:getRunningTweenData().tween
+                repeat task.wait() until not tweenData.tween or not isTweenRunning
 
 				local savedTick = 0
 				if data.action ~= "normal" then
@@ -466,20 +468,66 @@ function Tween:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
                 if current_1 ~= current_expection.name then
                     task.wait(1)
                     print("failed, retrying")
-                    self:travel(m, rp, hu, list, target, options, goCentralAfterDoor)
+                    self:travel(m, rp, hu, list, target, options, onlyGoThroughDoor, goCentralAfterDoor)
                     return
 				else
 					print("successed")
                 end
             end
         end
+        isMoving = false
         bigSlave.travel = nil
     end)
+    repeat task.wait() until tweenData.tween or not isMoving
 end
 
 function Tween:stopTravel()
     if bigSlave.travel then
         bigSlave.travel = nil
+    end
+    Tween.destroyTweens()
+    Helpers.basics.destroyNoPhysics(rootPart);
+end
+
+--override/multi function callable
+function Tween:through(m, rp, hu, list, goalCFrame, options)
+    model = m
+    rootPart = rp
+    hum = hu
+    if (not isHasRequiredInstances) then
+        Tween:stopThrough()
+        return;
+    end;
+
+    if bigSlave.through then
+        bigSlave.through = nil
+    end
+
+    goalCFrame = typeof(goalCFrame) == "Vector3" and CFrame.new(goalCFrame) or CFrame.new(goalCFrame.Position)
+
+    isMoving = true
+    bigSlave.through = task.spawn(function()
+        self:travel(m, rp, hu, list, Tween.getClosestIsland(list, goalCFrame), options, true, false)
+        while task.wait() do
+            if not isHasRequiredInstances() then
+                Tween.destroyTweens()
+                bigSlave.through = nil
+                return
+            end
+            if not bigSlave.travel and (not tweenData.tween or not isTweenRunning) or not isMoving then
+                self:tweenTeleport(m, rp, hu, goalCFrame, options)
+                repeat task.wait() until not self:getRunningTweenData().tween
+                bigSlave.through = nil
+                isMoving = false
+            end
+        end
+    end)
+    repeat task.wait() until tweenData.tween or not isMoving
+end
+
+function Tween:stopThrough()
+    if bigSlave.through then
+        bigSlave.through = nil
     end
     Tween.destroyTweens()
     Helpers.basics.destroyNoPhysics(rootPart);
@@ -552,13 +600,11 @@ return Tween;
 --Tween:tweenTeleport(plrLcalCharc, plrLcalRootPart, plrLcalHum, CFrame.new(-1285, 8, 584), {})
 --print("start tween1")
 --task.wait(3)
----override/multi function callable
 --Tween:tweenTeleport(plrLcalCharc, plrLcalRootPart, plrLcalHum, CFrame.new(-1285, 8, 584), {})
 --print("start tween2")
 
---Tween:travel(plrLcalCharc, plrLcalRootPart, plrLcalHum, Island_List_1, "underwater_city", {}, true)
---print("start travel")
---task.wait(3)
----override/multi function callable
---Tween:travel(plrLcalCharc, plrLcalRootPart, plrLcalHum, Island_List_1, "underwater_city", {}, true)
---print("start travel2")
+--print("start through1")
+--Tween:through(plrLcalCharc, plrLcalRootPart, plrLcalHum, Island_List_1, CFrame.new(3944, 13, -1641), {})
+--task.wait(0.75)
+--print("start through2")
+--Tween:through(plrLcalCharc, plrLcalRootPart, plrLcalHum, Island_List_1, CFrame.new(61261, 15, 1565), {})
