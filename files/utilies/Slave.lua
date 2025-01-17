@@ -106,7 +106,7 @@ function Slave:RemoveAllTasks()
     end;
 end;
 
-function Slave:SichDestroy()
+function Slave.SichDestroy()
 	if (self._tasks) then
 		self:RemoveAllTasks();
 		self._tasks = nil;
