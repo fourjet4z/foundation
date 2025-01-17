@@ -54,7 +54,7 @@ function Signal:DisconnectAll()
     end;
 end;
 
-function Signal:SichDestroy()
+function Signal.SichDestroy()
     if (self._event) then
         self._event:Destroy();
         self._event = nil;
