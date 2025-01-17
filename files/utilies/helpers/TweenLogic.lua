@@ -536,7 +536,7 @@ function Tween:through(m, rp, hu, list, goalCFrame, options)
             end
             if not isTraveling or not list or not next(list) then
                 self:tweenTeleport(m, rp, hu, goalCFrame, options)
-                repeat task.wait() until not self:getRunningTweenData().tween
+                repeat task.wait() until not tweenData.tween or not isTweenRunning
                 bigSlave.through = nil
                 isThroughing = false
             end
