@@ -49,7 +49,7 @@ local function isHasRequiredInstances()
     and IsA(model, "Model") and IsA(rootPart, "BasePart") and IsA(hum, "Humanoid")
 end
 
-function Tween:getRunningTweenData()
+function Tween.getRunningTweenData()
     return tweenData
 end
 
