@@ -80,7 +80,7 @@ function basicsHelpers.redoClip(model) --redo setClip
         end;
     end;
 
-    data.slave:SichDestroy();
+    data.slave.SichDestroy();
     modelData[model] = nil;
 end;
 
@@ -123,7 +123,7 @@ function basicsHelpers.destroyNoPhysics(part)
     local bdVelcData = bdVelcs[part];
     if (not bdVelcData) then return; end;
 
-    bdVelcData.slave:SichDestroy();
+    bdVelcData.slave.SichDestroy();
     if bdVelcData.bdVelc then
         bdVelcData.bdVelc:Destroy();
     end;
