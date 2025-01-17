@@ -106,16 +106,12 @@ function Slave:RemoveAllTasks()
     end;
 end;
 
-function Slave:GetOut()
+function Slave:SichDestroy()
 	if (self._tasks) then
 		self:RemoveAllTasks();
 		self._tasks = nil;
 	end;
     setmetatable(self, nil);
 end;
-
---- Alias for GetOut()
--- @function Destroy
-Slave.SichDestroy = Slave.GetOut
 
 return Slave;
