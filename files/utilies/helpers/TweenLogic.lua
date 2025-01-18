@@ -264,7 +264,18 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
             end
         end)
     else
-        tweenPlay()
+        bigSlave.tween = task.spawn(function()
+            tweenPlay()
+            while task.wait() do
+                if (not isHasRequiredInstances()) then
+                    tweenCancel()
+                    tweenData = {}
+                    isTweenRunning = false
+                    bigSlave.tween = nil
+                    return;
+                end;
+            end
+        end)
     end
     repeat task.wait() until tweenData.tween or not isTweenRunning
     return tweenData.tween
