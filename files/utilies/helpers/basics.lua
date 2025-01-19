@@ -329,6 +329,6 @@ function basics:sHop(sAmmount, sAmmountMultipliedTime, sortByLowPlayers, onlyGet
         end
     end
 end
---use: sHop(100, 1, false, true, 0, 0)
+--use: basics:sHop(100, 1, false, true, 0, 0)
 
 return basics;
