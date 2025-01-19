@@ -26,29 +26,30 @@ function basicsHelpers.setClip(model, canCollide, canTouch, redoOlds) --if input
 
     basicsHelpers.redoClip(model, redoOlds);
 
+    local slave = Slave.SichNew();
+    modelData[model] = {
+        slave = slave,
+        changedParts = {}
+    };
+
     local baseParts = {};
     local function onPartAdded(part)
         if (IsA(part, "BasePart")) then
-            if (baseParts[part]) then return; end;
+            if (not modelData[model] or baseParts[part]) then return; end;
             baseParts[part] = true;
         end;
     end
 
     local function onPartRemoving(part)
         if (IsA(part, "BasePart")) then
+            if (not modelData[model]) then return; end;
             baseParts[part] = nil;
             modelData[model].changedParts[part] = nil;
         end;
     end;
 
-    Utility.listenToDescendantAdded(model, onPartAdded, {listenToDestroying = true})
-    Utility.listenToDescendantRemoving(model, onPartRemoving)
-
-    local slave = Slave.SichNew();
-    modelData[model] = {
-        slave = slave,
-        changedParts = {}
-    };
+    slave:GiveTask(Utility.listenToDescendantAdded(model, onPartAdded, {listenToDestroying = true}))
+    slave:GiveTask(Utility.listenToDescendantRemoving(model, onPartRemoving))
 
     local function setModelProperties()
         for part, _ in pairs(baseParts) do
