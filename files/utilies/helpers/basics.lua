@@ -11,20 +11,30 @@ local Slave = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet
 
 
 
-local Players, UserInputService, RunService, Lighting = Services:Get('Players', 'UserInputService', 'RunService', "Lighting");
+local Players, UserInputService, RunService, Lighting, HttpService, TeleportService = Services:Get(
+    "Players",
+    "UserInputService",
+    "RunService",
+    "Lighting",
+    "HttpService",
+    "TeleportService"
+);
 
+PlaceId, JobId = game.PlaceId, game.JobId
 
-local basicsHelpers = {};
+local plrLcal = Players.LocalPlayer
+
+local basics = {};
 
 local IsA, IsAncestorOf = Methods:Get("game.IsA", "game.IsAncestorOf");
 
 local bigSlave = Slave.SichNew();
 
 local modelData = {};
-function basicsHelpers.setClip(model, canCollide, canTouch, redoOlds) --if input properties are nil then keep default properties
+function basics.setClip(model, canCollide, canTouch, redoOlds) --if input properties are nil then keep default properties
     if (not model or not IsAncestorOf(game, model)) then return; end;
 
-    basicsHelpers.redoClip(model, redoOlds);
+    basics.redoClip(model, redoOlds);
 
     local slave = Slave.SichNew();
     modelData[model] = {
@@ -80,11 +90,11 @@ function basicsHelpers.setClip(model, canCollide, canTouch, redoOlds) --if input
 
     slave:GiveTask(model.AncestryChanged:Connect(function()
         if (IsAncestorOf(game, model)) then return; end;
-        basicsHelpers.redoClip(model, redoOlds);
+        basics.redoClip(model, redoOlds);
     end));
 end;
 
-function basicsHelpers.redoClip(model, redoOlds) --redo setClip
+function basics.redoClip(model, redoOlds) --redo setClip
     local data = modelData[model];
     if (not data) then return; end;
 
@@ -103,7 +113,7 @@ function basicsHelpers.redoClip(model, redoOlds) --redo setClip
 end;
 
 local bdVelcs = {};
-function basicsHelpers.noPhysics(part, options)
+function basics.noPhysics(part, options)
     if (not part or not IsAncestorOf(game, part)
     or not IsA(part, "BasePart")) then return; end;
 
@@ -144,12 +154,12 @@ function basicsHelpers.noPhysics(part, options)
 
         slave:GiveTask(part.AncestryChanged:Connect(function()
             if (IsAncestorOf(game, part)) then return; end;
-            basicsHelpers.destroyNoPhysics(part);
+            basics.destroyNoPhysics(part);
         end));
     end;
 end;
 
-function basicsHelpers.destroyNoPhysics(part)
+function basics.destroyNoPhysics(part)
     local bdVelcData = bdVelcs[part];
     if (not bdVelcData) then return; end;
 
@@ -160,7 +170,7 @@ function basicsHelpers.destroyNoPhysics(part)
     bdVelcs[part] = nil;
 end;
 
-function basicsHelpers.destroyPhysics(part)
+function basics.destroyPhysics(part)
     local localBdVelcs = Utility:getInstancesClassNameOf(part, "BodyVelocity", false) or {};
     for _, bdVelc in pairs(localBdVelcs) do
         bdVelc:Destroy();
@@ -168,7 +178,7 @@ function basicsHelpers.destroyPhysics(part)
 end;
 
 local lastFogsDensity = {};
-function basicsHelpers.noFog(toggle)
+function basics.noFog(toggle)
     local atmospheres = Utility:getInstancesClassNameOf(Lighting, "Atmosphere", false) or {};
     for _, atmosphere in pairs(atmospheres) do
         if (not toggle) then
@@ -179,7 +189,7 @@ function basicsHelpers.noFog(toggle)
             return;
         end;
 
-        bigSlave.noFog:GiveTask(atmosphere:GetPropertyChangedSignal('Density'):Connect(function()
+        bigSlave.noFog:GiveTask(atmosphere:GetPropertyChangedSignal("Density"):Connect(function()
             atmosphere.Density = 0;
         end));
 
@@ -188,7 +198,7 @@ function basicsHelpers.noFog(toggle)
     end;
 end;
 
-function basicsHelpers.noBlur(toggle)
+function basics.noBlur(toggle)
     local blurs = Utility:getInstancesClassNameOf(Lighting, "BlurEffect", false) or {};
     local depthOfFields = Utility:getInstancesClassNameOf(Lighting, "DepthOfFieldEffect", false) or {};
     for _, blur in pairs(blurs) do
@@ -198,7 +208,7 @@ function basicsHelpers.noBlur(toggle)
             return;
         end;
 
-        bigSlave.noBlur:GiveTask(blur:GetPropertyChangedSignal('Enabled'):Connect(function()
+        bigSlave.noBlur:GiveTask(blur:GetPropertyChangedSignal("Enabled"):Connect(function()
             if not blur.Enabled then return; end;
             blur.Enabled = false;
         end));
@@ -212,7 +222,7 @@ function basicsHelpers.noBlur(toggle)
             return;
         end;
 
-        bigSlave.noBlur:GiveTask(dof:GetPropertyChangedSignal('Enabled'):Connect(function()
+        bigSlave.noBlur:GiveTask(dof:GetPropertyChangedSignal("Enabled"):Connect(function()
             if not dof.Enabled then return; end;
             dof.Enabled = false;
         end));
@@ -223,7 +233,7 @@ end;
 
 local oldAmbient, oldBritghtness = Lighting.Ambient, Lighting.Brightness;
 
-function basicsHelpers.fullBright(toggle)
+function basics.fullBright(toggle)
     if (not toggle) then
         bigSlave.fullBright:RemoveAllTasks();
         Lighting.Ambient, Lighting.Brightness = oldAmbient, oldBritghtness;
@@ -232,14 +242,93 @@ function basicsHelpers.fullBright(toggle)
 
     oldAmbient, oldBritghtness = Lighting.Ambient, Lighting.Brightness;
 
-    bigSlave.fullBright:GiveTask(Lighting:GetPropertyChangedSignal('Ambient'):Connect(function()
+    bigSlave.fullBright:GiveTask(Lighting:GetPropertyChangedSignal("Ambient"):Connect(function()
         Lighting.Ambient = Color3.fromRGB(255, 255, 255);
     end));
-    bigSlave.fullBright:GiveTask(Lighting:GetPropertyChangedSignal('Brightness'):Connect(function()
+    bigSlave.fullBright:GiveTask(Lighting:GetPropertyChangedSignal("Brightness"):Connect(function()
         Lighting.Brightness = 1;
     end));
 
     Lighting.Ambient, Lighting.Brightness = Color3.fromRGB(255, 255, 255), 1;
 end;
 
-return basicsHelpers;
+local Api = "https://games.roblox.com/v1/games/"
+
+local function fetchServersData(limit, cursor, sort, placeId)
+	local format = string.format("%s%d/servers/Public?sortOrder=%s&limit=%d&excludeFullGames=true", Api, placeId, sort, limit)
+	local url = string.format("%s%s", format, (cursor and string.format("&cursor=%s", cursor)) or "")
+
+	local success, response = pcall(function()
+		return HttpService:JSONDecode(game:HttpGet(url))
+	end)
+
+	if success and response and response.data then
+		return response.data, response.nextPageCursor
+	end
+
+	return nil, nil
+end
+
+local function serversGet(serverLimit, getTimes, sort, onlyGetJobId, delay)
+	getTimes = getTimes or 1
+	serverLimit = (serverLimit <= 100 and serverLimit) or 100
+
+	local serversTable = {}
+	local nextPage
+	repeat
+		local servers
+		repeat
+			print("looping,in")
+			servers, nextPage = fetchServersData(serverLimit, nextPage, sort, PlaceId)
+			if not servers then task.wait(math.random(175, 300)/100) end
+			if delay then task.wait(delay) end
+		until servers
+
+		for _, server in ipairs(servers) do
+			if type(server) == "table" and server.playing > 0 and server.maxPlayers > server.playing and server.id ~= JobId then
+				local insertPos = tostring(sort) == "Asc" and 1 or #serversTable + 1
+				table.insert(serversTable, insertPos, (onlyGetJobId and server.id) or server)
+			end
+		end
+
+		getTimes = getTimes - 1
+	until not nextPage or getTimes <= 0
+
+	print("servers counted:", #serversTable)
+	return serversTable
+end
+
+--sortByLowPlayers: true - lowplayer, :false - random
+function basics:sHop(sAmmount, sAmmountMultipliedTime, sortByLowPlayers, onlyGetJobId, sGetDelay, sHopDelay) --sAmmount = sLimit <= 100 (had to be <= 100)
+	if sHopDelay then task.wait(sHopDelay) end
+	local sort = sortByLowPlayers and "Asc" or "Desc"
+	local serversTable = serversGet(sAmmount, sAmmountMultipliedTime, sort, onlyGetJobId, sGetDelay)
+	while true do
+        if #serversTable > 0 then
+			local serverIndex = (sortByLowPlayers and 1) or math.random(1, #serversTable)
+			local serverId = (onlyGetJobId and serversTable[serverIndex]) or serversTable[serverIndex].id
+
+            print("Serverhopping")   -- using pcall(function()/print might get instanly banned/detected
+            local success,_ = pcall(function()
+                TeleportService:TeleportToPlaceInstance(PlaceId, serverId, plrLcal)    -- using pcall(function()/print might get instanly banned/detected
+            end)
+
+            if success then
+                local newJobId = game.JobId
+                if newJobId ~= JobId then
+                    print("Serverhopped")
+                    return
+                end
+            end
+
+            table.remove(serversTable, serverIndex)
+            task.wait(0.3)
+        else
+            print("Serverhop", "Couldn't find a server.")
+			return
+        end
+    end
+end
+--use: sHop(100, 1, false, true, 0, 0)
+
+return basics;
