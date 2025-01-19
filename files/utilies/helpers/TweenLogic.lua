@@ -44,7 +44,6 @@ end
 
 local function isHasRequiredInstances()
     return model and rootPart and hum
-    and model.Parent and rootPart.Parent and hum.Parent
     and IsAncestorOf(game, model) and IsAncestorOf(game, rootPart) and IsAncestorOf(game, hum)
     and IsA(model, "Model") and IsA(rootPart, "BasePart") and IsA(hum, "Humanoid")
 end
