@@ -4,358 +4,240 @@
 
 
 
+local Utility = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet4z/foundation/refs/heads/main/files/utilies/Utility.lua"))();
 local Services = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet4z/foundation/refs/heads/main/files/utilies/Services.lua"))();
 local Methods = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet4z/foundation/refs/heads/main/files/utilies/Methods.lua"))();
-local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet4z/foundation/refs/heads/main/files/utilies/Signal.lua"))();
+local Slave = loadstring(game:HttpGet("https://raw.githubusercontent.com/fourjet4z/foundation/refs/heads/main/files/utilies/Slave.lua"))();
 
 
 
-local Players, CoreGui, CollectionService = Services:Get("Players", "CoreGui", "CollectionService");
-local plrLcal = Players.LocalPlayer;
+local Players, UserInputService, RunService, Lighting = Services:Get('Players', 'UserInputService', 'RunService', "Lighting");
 
-local Utility = {};
 
-local mathFloor, stringFind, stringLower, IsA, IsAncestorOf = Methods:Get("math.floor", "string.find", "string.lower", "game.IsA", "game.IsAncestorOf")
+local basicsHelpers = {};
 
-function Utility:getPlr(plr)
-    if (not plr) then return; end;
-    return Players:FindFirstChild(tostring(plr))
-end
+local IsA, IsAncestorOf = Methods:Get("game.IsA", "game.IsAncestorOf");
 
-function Utility:isPlrTeamate() end --custom needed
+local bigSlave = Slave.SichNew();
 
-function Utility:getPlrCharc() end --custom needed
+local modelData = {};
+function basicsHelpers.setClip(model, canCollide, canTouch, redoOlds) --if input properties are nil then keep default properties
+    if (not model or not IsAncestorOf(game, model)) then return; end;
 
-function Utility:isPlrCharcHasRequiredInstances() end --custom needed
+    basicsHelpers.redoClip(model, redoOlds);
 
-function Utility.listenToChildAdded(folder, listener, options)
-    assert(typeof(folder) == "Instance", "listenToChildAdded: Argument #1 (folder) must be an Instance");
-    assert(
-        typeof(listener) == "function" or (typeof(listener) == "table" and typeof(listener.new) == "function"),
-        "listenToChildAdded: Argument #2 (listener) must be a function or a table with a 'new' method"
-    );
-
-    options = options or {listenToDestroying = false};
-
-    local createListener = typeof(listener) == "table" and listener.new or listener;
-
-    local function onChildAdded(child)
-        local listenerObject = createListener(child);
-
-        if (options.listenToDestroying and listenerObject) then
-            child.Destroying:Connect(function()
-                local removeListener = typeof(listener) == "table" and (listener.Destroy or listener.Remove) or listenerObject;
-
-                if (typeof(removeListener) == "function") then
-                    removeListener(child);
-                else
-                    warn("[Utility] Potential memory leak: removeListener is not defined for", folder);
-                end;
-            end);
-        end;
-    end;
-
-    --debug.profilebegin(string.format("Utility.listenToChildAdded(%s)", folder:GetFullName()));
-
-    for _, child in pairs(folder:GetChildren()) do
-        task.spawn(onChildAdded, child);
-    end;
-
-    --debug.profileend();
-
-    return folder.ChildAdded:Connect(createListener);
-end;
-
-function Utility.listenToChildRemoving(folder, listener)
-    assert(typeof(folder) == "Instance", "listenToChildRemoving: Argument #1 (folder) must be an Instance");
-    assert(
-        typeof(listener) == "function" or (typeof(listener) == "table" and typeof(listener.new) == "function"),
-        "listenToChildRemoving: Argument #2 (listener) must be a function or a table with a 'new' method"
-    );
-
-    local createListener = typeof(listener) == "table" and listener.new or listener;
-
-    return folder.ChildRemoved:Connect(createListener);
-end;
-
-function Utility.listenToDescendantAdded(folder, listener, options)
-    assert(typeof(folder) == "Instance", "listenToDescendantAdded: Argument #1 (folder) must be an Instance");
-    assert(
-        typeof(listener) == "function" or (typeof(listener) == "table" and typeof(listener.new) == "function"),
-        "listenToDescendantAdded: Argument #2 (listener) must be a function or a table with a 'new' method"
-    );
-
-    options = options or {listenToDestroying = false};
-
-    local createListener = typeof(listener) == "table" and listener.new or listener;
-
-    local function onDescendantAdded(child)
-        local listenerObject = createListener(child);
-
-        if (options.listenToDestroying and listenerObject) then
-            child.Destroying:Connect(function()
-                local removeListener = typeof(listener) == "table" and (listener.Destroy or listener.Remove) or listenerObject;
-
-                if (typeof(removeListener) == "function") then
-                    removeListener(child);
-                else
-                    warn("[Utility] removeListener is not definded possible memory leak for", folder);
-                end;
-            end);
+    local baseParts = {};
+    local function onPartAdded(part)
+        if (IsA(part, "BasePart")) then
+            baseParts[part] = true;
         end;
     end
 
-    --debug.profilebegin(string.format("Utility.listenToDescendantAdded(%s)", folder:GetFullName()));
-
-    for _, child in next, folder:GetDescendants() do
-        task.spawn(onDescendantAdded, child);
-    end;
-
-    --debug.profileend();
-
-    return folder.DescendantAdded:Connect(onDescendantAdded);
-end;
-
-function Utility.listenToDescendantRemoving(folder, listener)
-    assert(typeof(folder) == "Instance", "listenToDescendantRemoving: Argument #1 (folder) must be an Instance");
-    assert(
-        typeof(listener) == "function" or (typeof(listener) == "table" and typeof(listener.new) == "function"),
-        "listenToDescendantRemoving: Argument #2 (listener) must be a function or a table with a 'new' method"
-    );
-
-    local createListener = typeof(listener) == "table" and listener.new or listener;
-
-    return folder.DescendantRemoving:Connect(createListener);
-end;
-
-function Utility.listenToTagAdded(tagName, listener)
-    for _, v in next, CollectionService:GetTagged(tagName) do
-        task.spawn(listener, v);
-    end;
-
-    return CollectionService:GetInstanceAddedSignal(tagName):Connect(listener);
-end;
-
-local holder, plrsHolders = Instance.new("Folder", CoreGui), {};
-local function addPlrHolder(plr)
-    local plrHolder = Instance.new("Folder", holder);
-    plrHolder.Name = plr.Name; -- Utility.randomString()
-
-    plrsHolders[plr] = plrHolder;
-end;
-
-local function removePlrHolder(plr)
-    local plrHolder = plrsHolders[plr];
-    if not plrHolder then return; end;
-
-    plrHolder:Destroy();
-    plrsHolders[plr] = nil;
-end;
-
-local function onPlrAdded(plr)
-    addPlrHolder(plr);
-end;
-
-local function onPlrRemoving(plr)
-    removePlrHolder(plr);
-end;
-
-for _, plr in next, Players:GetPlayers() do
-    task.spawn(onPlrAdded, plr);
-end;
-
-Players.PlayerAdded:Connect(onPlrAdded);
-Players.PlayerRemoving:Connect(onPlrRemoving);
-
-function Utility:renderOverload(data) end;
-
-function Utility:countTable(t)
-    local found = 0;
-
-    for i, v in next, t do
-        found = found + 1;
-    end;
-
-    return found;
-end;
-
-function Utility.isBetweenAt(pos1, po2, factorDis)
-    local betweenDis = (pos1 - po2).Magnitude
-    return factorDis and factorDis >= betweenDis, betweenDis
-end
-
-function Utility.lookAt(atCFrame)
-    local camera = workspace.CurrentCamera;
-    local cameraPos = camera.CFrame.Position;
-
-    atCFrame = typeof(atCFrame) == "Vector3" and CFrame.new(atCFrame) or CFrame.new(atCFrame.Position);
-
-    local direction = (atCFrame.Position - cameraPos).unit;
-    local newCF = CFrame.new(cameraPos, cameraPos + direction);
-    camera.CFrame = newCF;
-end;
-
-function Utility:roundVector(vector) --ignore Y value, set to 0
-    return Vector3.new(vector.X, 0, vector.Z);
-end;
-
-function Utility.randomString()
-	local length = math.random(10,20);
-	local array = {};
-	for i = 1, length do
-		array[i] = string.char(math.random(33, 126));
-	end;
-	return table.concat(array);
-end;
-
-function Utility:getBasePart(obj)
-    return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
-end;
-
-function Utility:getinstanceWithGetDescendantsOf(obj, instance)
-    for _, descendant in pairs(obj:GetDescendants()) do
-        if (descendant == instance) then
-            return descendant;
+    local function onPartRemoving(part)
+        if (IsA(part, "BasePart")) then
+            baseParts[part] = nil;
+            modelData[model].changedParts[part] = nil;
         end;
     end;
-end;
 
-function Utility:getinstanceWithGetChildrenOf(obj, instance)
-    for _, child in pairs(obj:GetChildren()) do
-        if (child == instance) then
-            return child;
-        end;
-    end;
-end;
+    Utility.listenToDescendantAdded(model, onPartAdded, {listenToDestroying = true})
+    Utility.listenToDescendantRemoving(model, onPartRemoving)
 
-function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstance)
-    local valids = {};
-    if (selfInstance and stringFind(stringLower(obj.Name), name)) then
-        if oneInstance then return obj; end
-        table.insert(valids, obj);
-    end;
-    for _, validDescendant in pairs(obj:GetDescendants()) do
-        if (stringFind(stringLower(validDescendant.Name), name)) then
-            if oneInstance then return validDescendant; end
-            table.insert(valids, validDescendant);
-        end;
-    end;
-    return not oneInstance and valids
-end;
+    local slave = Slave.SichNew();
+    modelData[model] = {
+        slave = slave,
+        changedParts = {}
+    };
 
-function Utility:getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
-    local valids = {};
-    if (selfInstance and stringFind(stringLower(obj.Name), name)) then
-        if oneInstance then return obj; end
-        table.insert(valids, obj);
-    end;
-    for _, validChild in pairs(obj:GetChildren()) do
-        if (stringFind(stringLower(validChild.Name), name)) then
-            if oneInstance then return validChild; end
-            table.insert(valids, validChild);
-        end;
-    end;
-    return not oneInstance and valids
-end;
+    local function setModelProperties()
+        for _, part in pairs(baseParts) do
+            if (model and not IsAncestorOf(model, part)) then
+                modelData[model].changedParts[part] = nil;
+                baseParts[part] = nil;
+                continue;
+            end;
 
-function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
-    local valids = {};
-    if (selfInstance and IsA(obj, className)) then
-        if oneInstance then return obj; end
-        table.insert(valids, obj);
-    end;
-    for _, validDescendant in pairs(obj:GetDescendants()) do
-        if (IsA(validDescendant, className)) then
-            if oneInstance then return validDescendant; end
-            table.insert(valids, validDescendant);
-        end;
-    end;
-    return not oneInstance and valids
-end;
+            local changes = {};
+            if (canCollide ~= nil and part.CanCollide ~= canCollide) then
+                changes.CanCollide = part.CanCollide;
+                part.CanCollide = canCollide;
+            end;
 
-function Utility:getChildrenIncludeClassNameOf(obj, className, selfInstance, oneInstance)
-    local valids = {};
-    if (selfInstance and IsA(obj, className)) then
-        if oneInstance then return obj; end
-        table.insert(valids, obj);
-    end;
-    for _, validChild in pairs(obj:GetChildren()) do
-        if (IsA(validChild, className)) then
-            if oneInstance then return validChild; end
-            table.insert(valids, validChild);
-        end;
-    end;
-    return not oneInstance and valids
-end;
+            if (canTouch ~= nil and part.CanTouch ~= canTouch) then
+                changes.CanTouch = part.CanTouch;
+                part.CanTouch = canTouch;
+            end;
 
-function Utility.getSmallestSize(part)
-    if (not IsA(part, "BasePart")) then return nil; end;
-    local partSize = part.Size;
-    return math.min(partSize.X, partSize.Y, partSize.Y);
-end;
-
-function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only override key_value ~= nil
-    local merged = {};
-    for key, value in pairs(defaults) do
-        if (typeof(value) == "table" and typeof(overrides[key]) == "table") then
-            merged[key] = self:mergeTables(value, overrides[key], ignoreKeyNotInDefaults);
-        else
-            if (overrides[key] ~= nil) then
-                merged[key] = overrides[key];
-            else
-                merged[key] = value;
+            if (next(changes)) then
+                modelData[model].changedParts[part] = changes;
             end;
         end;
     end;
-    for key, value in pairs(overrides) do
-        if (defaults[key] == nil) then
-            if (ignoreKeyNotInDefaults) then
-                print("Key ignored: " .. tostring(key))
-            else
-                merged[key] = value
+
+    slave:GiveTask(RunService.Heartbeat:Connect(setModelProperties));
+
+    slave:GiveTask(model.AncestryChanged:Connect(function()
+        if (IsAncestorOf(game, model)) then return; end;
+        basicsHelpers.redoClip(model, redoOlds);
+    end));
+end;
+
+function basicsHelpers.redoClip(model, redoOlds) --redo setClip
+    local data = modelData[model];
+    if (not data) then return; end;
+
+    if redoOlds then
+        for part, changes in pairs(data.changedParts or {}) do
+            if (part.Parent) then
+                for property, value in pairs(changes or {}) do
+                    part[property] = value;
+                end;
             end;
         end;
     end;
-    return merged;
+
+    data.slave:SichDestroy();
+    modelData[model] = nil;
 end;
 
-function Utility.getAllParents(obj)
-    if (not obj or not obj.Parent) then return; end;
-    local parents = {};
-    local function collectParent(current)
-        if (not current or not current.Parent) then return; end;
-        table.insert(parents, current.Parent.Name);
-        collectParent(current.Parent);
-    end;
-    collectParent(obj);
-    return parents;
-end
+local bdVelcs = {};
+function basicsHelpers.noPhysics(part, options)
+    if (not part or not IsAncestorOf(game, part)
+    or not IsA(part, "BasePart")) then return; end;
 
-function Utility.toStringOr(value, expect)
-    return value and tostring(value) or expect;
-end;
-
-function Utility.find(t, c)
-    for i, v in next, t do
-        if (c(v, i)) then
-            return v, i;
+    if (options) then
+        if (options.offset) then
+            part.CFrame = CFrame.new(part.CFrame.Position) * options.offset.Rotation;
         end;
     end;
 
-    return nil;
+    if not bdVelcs[part] then
+        local slave = Slave.SichNew();
+        bdVelcs[part] = {
+            slave = slave,
+            bdVelc = nil
+        };
+
+        local function setNoPhysics()
+            if (not part) then return; end;
+            local oldBdVelc, newBdVelc, bdVelc = bdVelcs[part].bdVelc, nil, nil
+            if (not oldBdVelc or not IsAncestorOf(part, oldBdVelc)) then
+                if (oldBdVelc) then
+                    oldBdVelc:Destroy();
+                end
+                newBdVelc = Instance.new("BodyVelocity")
+            end
+            bdVelc = newBdVelc or oldBdVelc
+            -- if (newBdVelc) then bdVelc.Name = "NoPhysics"; end;
+            bdVelc.MaxForce = Vector3.one * math.huge;
+            bdVelc.Velocity = Vector3.zero;
+            bdVelc.Parent = part;
+
+            if newBdVelc then
+                bdVelcs[part].bdVelc = bdVelc
+            end
+        end
+
+        slave:GiveTask(RunService.Stepped:Connect(setNoPhysics));
+
+        slave:GiveTask(part.AncestryChanged:Connect(function()
+            if (IsAncestorOf(game, part)) then return; end;
+            basicsHelpers.destroyNoPhysics(part);
+        end));
+    end;
 end;
 
-function Utility.map(t, c)
-    local ret = {};
+function basicsHelpers.destroyNoPhysics(part)
+    local bdVelcData = bdVelcs[part];
+    if (not bdVelcData) then return; end;
 
-    for i, v in next, t do
-        local val = c(v, i);
-        if (val) then
-            table.insert(ret, val);
+    bdVelcData.slave:SichDestroy();
+    if bdVelcData.bdVelc then
+        bdVelcData.bdVelc:Destroy();
+    end;
+    bdVelcs[part] = nil;
+end;
+
+function basicsHelpers.destroyPhysics(part)
+    local localBdVelcs = Utility:getInstancesClassNameOf(part, "BodyVelocity", false) or {};
+    for _, bdVelc in pairs(localBdVelcs) do
+        bdVelc:Destroy();
+    end;
+end;
+
+local lastFogsDensity = {};
+function basicsHelpers.noFog(toggle)
+    local atmospheres = Utility:getInstancesClassNameOf(Lighting, "Atmosphere", false) or {};
+    for _, atmosphere in pairs(atmospheres) do
+        if (not toggle) then
+            bigSlave.noFog:RemoveAllTasks();
+            if (lastFogsDensity[atmosphere]) then
+                atmosphere.Density = lastFogsDensity[atmosphere];
+            end;
+            return;
         end;
+
+        bigSlave.noFog:GiveTask(atmosphere:GetPropertyChangedSignal('Density'):Connect(function()
+            atmosphere.Density = 0;
+        end));
+
+        lastFogsDensity[atmosphere] = atmosphere.Density or 0;
+        atmosphere.Density = 0;
+    end;
+end;
+
+function basicsHelpers.noBlur(toggle)
+    local blurs = Utility:getInstancesClassNameOf(Lighting, "BlurEffect", false) or {};
+    local depthOfFields = Utility:getInstancesClassNameOf(Lighting, "DepthOfFieldEffect", false) or {};
+    for _, blur in pairs(blurs) do
+        if (not toggle) then
+            bigSlave.noBlur:RemoveAllTasks();
+            blur.Enabled = true;
+            return;
+        end;
+
+        bigSlave.noBlur:GiveTask(blur:GetPropertyChangedSignal('Enabled'):Connect(function()
+            if not blur.Enabled then return; end;
+            blur.Enabled = false;
+        end));
+
+        blur.Enabled = false;
+    end;
+    for _, dof in pairs(depthOfFields) do
+        if (not toggle) then
+            bigSlave.noBlur:RemoveAllTasks();
+            dof.Enabled = true;
+            return;
+        end;
+
+        bigSlave.noBlur:GiveTask(dof:GetPropertyChangedSignal('Enabled'):Connect(function()
+            if not dof.Enabled then return; end;
+            dof.Enabled = false;
+        end));
+
+        dof.Enabled = false;
+    end;
+end;
+
+local oldAmbient, oldBritghtness = Lighting.Ambient, Lighting.Brightness;
+
+function basicsHelpers.fullBright(toggle)
+    if (not toggle) then
+        bigSlave.fullBright:RemoveAllTasks();
+        Lighting.Ambient, Lighting.Brightness = oldAmbient, oldBritghtness;
+        return
     end;
 
-    return ret;
+    oldAmbient, oldBritghtness = Lighting.Ambient, Lighting.Brightness;
+
+    bigSlave.fullBright:GiveTask(Lighting:GetPropertyChangedSignal('Ambient'):Connect(function()
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255);
+    end));
+    bigSlave.fullBright:GiveTask(Lighting:GetPropertyChangedSignal('Brightness'):Connect(function()
+        Lighting.Brightness = 1;
+    end));
+
+    Lighting.Ambient, Lighting.Brightness = Color3.fromRGB(255, 255, 255), 1;
 end;
 
-return Utility;
+return basicsHelpers;
