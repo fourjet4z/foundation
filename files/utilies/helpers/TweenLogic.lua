@@ -124,7 +124,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     end;
 
     Helpers.basics.noPhysics(rootPart, options); -- rootPart.CFrame = CFrame.new(rootPart.CFrame.Position) * options.offset.Rotation; --included in noPhysics function
-    Helpers.basics.setClip(model, false, nil);
+    Helpers.basics.setClip(model, false, nil, true);
 
     local function getTweenTimeLeft()
         local distance = (rootPart.Position - goalCFrame.Position).Magnitude;
