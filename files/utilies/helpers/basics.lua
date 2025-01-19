@@ -21,10 +21,27 @@ local IsA, IsAncestorOf = Methods:Get("game.IsA", "game.IsAncestorOf");
 local bigSlave = Slave.SichNew();
 
 local modelData = {};
-function basicsHelpers.setClip(model, canCollide, canTouch) --if input properties are nil then keep default properties
-    if (not model or not model.Parent or not IsAncestorOf(game, model)) then return; end;
+function basicsHelpers.setClip(model, canCollide, canTouch, redoOlds) --if input properties are nil then keep default properties
+    if (not model or not IsAncestorOf(game, model)) then return; end;
 
-    basicsHelpers.redoClip(model);
+    basicsHelpers.redoClip(model, redoOlds);
+
+    local baseParts = {};
+    local function onPartAdded(part)
+        if (IsA(part, "BasePart")) then
+            baseParts[part] = true;
+        end;
+    end
+
+    local function onPartRemoving(part)
+        if (IsA(part, "BasePart")) then
+            baseParts[part] = nil;
+            modelData[model].changedParts[part] = nil;
+        end;
+    end;
+
+    Utility.listenToDescendantAdded(model, onPartAdded, {listenToDestroying = true})
+    Utility.listenToDescendantRemoving(model, onPartRemoving)
 
     local slave = Slave.SichNew();
     modelData[model] = {
@@ -33,49 +50,48 @@ function basicsHelpers.setClip(model, canCollide, canTouch) --if input propertie
     };
 
     local function setModelProperties()
-        for _, part in pairs(model:GetDescendants()) do
-            if (IsA(part, "BasePart")) then
-                local changes = modelData[model].changedParts[part] or {};
+        for _, part in pairs(baseParts) do
+            if (model and not IsAncestorOf(model, part)) then
+                modelData[model].changedParts[part] = nil;
+                baseParts[part] = nil;
+                continue;
+            end;
 
-                if (canCollide ~= nil and part.CanCollide ~= canCollide) then
-                    changes.CanCollide = part.CanCollide;
-                    part.CanCollide = canCollide;
-                end;
+            local changes = {};
+            if (canCollide ~= nil and part.CanCollide ~= canCollide) then
+                changes.CanCollide = part.CanCollide;
+                part.CanCollide = canCollide;
+            end;
 
-                if (canTouch ~= nil and part.CanTouch ~= canTouch) then
-                    changes.CanTouch = part.CanTouch;
-                    part.CanTouch = canTouch;
-                end;
+            if (canTouch ~= nil and part.CanTouch ~= canTouch) then
+                changes.CanTouch = part.CanTouch;
+                part.CanTouch = canTouch;
+            end;
 
-                if (next(changes)) then
-                    slave:GiveTask(part.AncestryChanged:Connect(function()
-                        if IsAncestorOf(model, part) then return; end;
-                        modelData[model].changedParts[part] = nil;
-                    end));
-                    modelData[model].changedParts[part] = changes;
-                end;
+            if (next(changes)) then
+                modelData[model].changedParts[part] = changes;
             end;
         end;
     end;
 
-    setModelProperties();
-
-    slave:GiveTask(RunService.Stepped:Connect(setModelProperties));
+    slave:GiveTask(RunService.Heartbeat:Connect(setModelProperties));
 
     slave:GiveTask(model.AncestryChanged:Connect(function()
-        if model.Parent or IsAncestorOf(game, model) then return; end;
-        basicsHelpers.redoClip(model);
+        if (IsAncestorOf(game, model)) then return; end;
+        basicsHelpers.redoClip(model, redoOlds);
     end));
 end;
 
-function basicsHelpers.redoClip(model) --redo setClip
+function basicsHelpers.redoClip(model, redoOlds) --redo setClip
     local data = modelData[model];
     if (not data) then return; end;
 
-    for part, changes in pairs(data.changedParts or {}) do
-        if (part.Parent) then
-            for property, value in pairs(changes or {}) do
-                part[property] = value;
+    if redoOlds then
+        for part, changes in pairs(data.changedParts or {}) do
+            if (part.Parent) then
+                for property, value in pairs(changes or {}) do
+                    part[property] = value;
+                end;
             end;
         end;
     end;
@@ -86,7 +102,8 @@ end;
 
 local bdVelcs = {};
 function basicsHelpers.noPhysics(part, options)
-    if (not part or not part.Parent or not IsAncestorOf(game, part) or not IsA(part, "BasePart")) then return; end;
+    if (not part or not IsAncestorOf(game, part)
+    or not IsA(part, "BasePart")) then return; end;
 
     if (options) then
         if (options.offset) then
@@ -101,19 +118,30 @@ function basicsHelpers.noPhysics(part, options)
             bdVelc = nil
         };
 
-        slave:GiveTask(RunService.Stepped:Connect(function()
-            local bdVelc = bdVelcs[part].bdVelc;
-            bdVelc = bdVelc and bdVelc.Parent and IsAncestorOf(part, bdVelc) and bdVelc or Instance.new("BodyVelocity");
-            -- bdVelc.Name = "NoPhysics";
+        local function setNoPhysics()
+            if (not part) then return; end;
+            local oldBdVelc, newBdVelc, bdVelc = bdVelcs[part].bdVelc, nil, nil
+            if (not oldBdVelc or not IsAncestorOf(part, oldBdVelc)) then
+                if (oldBdVelc) then
+                    oldBdVelc:Destroy();
+                end
+                newBdVelc = Instance.new("BodyVelocity")
+            end
+            bdVelc = newBdVelc or oldBdVelc
+            -- if (newBdVelc) then bdVelc.Name = "NoPhysics"; end;
             bdVelc.MaxForce = Vector3.one * math.huge;
             bdVelc.Velocity = Vector3.zero;
             bdVelc.Parent = part;
 
-            bdVelcs[part].bdVelc = bdVelc
-        end));
+            if newBdVelc then
+                bdVelcs[part].bdVelc = bdVelc
+            end
+        end
+
+        slave:GiveTask(RunService.Stepped:Connect(setNoPhysics));
 
         slave:GiveTask(part.AncestryChanged:Connect(function()
-            if (part.Parent or IsAncestorOf(game, part)) then return; end;
+            if (IsAncestorOf(game, part)) then return; end;
             basicsHelpers.destroyNoPhysics(part);
         end));
     end;
