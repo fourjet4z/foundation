@@ -29,6 +29,7 @@ function basicsHelpers.setClip(model, canCollide, canTouch, redoOlds) --if input
     local baseParts = {};
     local function onPartAdded(part)
         if (IsA(part, "BasePart")) then
+            if (baseParts[part]) then return; end;
             baseParts[part] = true;
         end;
     end
@@ -50,7 +51,7 @@ function basicsHelpers.setClip(model, canCollide, canTouch, redoOlds) --if input
     };
 
     local function setModelProperties()
-        for _, part in pairs(baseParts) do
+        for part, _ in pairs(baseParts) do
             if (model and not IsAncestorOf(model, part)) then
                 modelData[model].changedParts[part] = nil;
                 baseParts[part] = nil;
