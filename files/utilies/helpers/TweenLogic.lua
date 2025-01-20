@@ -189,7 +189,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
                             getTweenTimeLeft(),
                             options.advance.states.jumpSkip.distance / options.tweenSpeed
                         )
-                    ) * options.offset
+                    ) * (options.offset or CFrame.identity * rootPart.CFrame.Rotation)
                 end
             })
         end
