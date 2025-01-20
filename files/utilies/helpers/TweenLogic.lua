@@ -85,7 +85,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
         tweenSpeed = 100,
         tweenSpeedIgnoreY = false,
         instant = false,
-        offset = nil, --(offset while twennin)/(default: LocalPlayer HumanoidRootPart Rotation)
+        offset = CFrame.identity * rootPart.CFrame.Rotation, --(offset while twennin)/(default: LocalPlayer HumanoidRootPart Rotation)
 	    followCamera = false, --camera look at goalCFrame once time when tween start
         advance = { --advanced tween logic with high customization
             value = false, --true: normal tween / false: advanced tween logic
@@ -135,7 +135,10 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     end
 
     local function tweenPlay()
-        goalCFrame =  goalCFrame * (options.offset or CFrame.identity * rootPart.CFrame.Rotation);
+        if not options.offset.Rotation then
+            options.offset = options.offset * CFrame.identity * rootPart.CFrame.Rotation
+        end
+        goalCFrame =  goalCFrame * options.offset;
         local tweenInfo = TweenInfo.new(getTweenTimeLeft(), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
         tweenData.tween = TweenService:Create(rootPart, tweenInfo, {CFrame = goalCFrame});
         tweenData.tween.Completed:Connect(function(playbackState)
@@ -182,7 +185,10 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
                     if not options.advance.states.pause.value then
                         tweenPause() --muss pause before change/set rootPart CFrame
                     end
-                    -- goalCFrame = goalCFrame * (options.offset or CFrame.identity * rootPart.CFrame.Rotation) --alr set in tween (state 1)
+
+                    if not options.offset.Rotation then
+                        options.offset = options.offset * CFrame.identity * rootPart.CFrame.Rotation
+                    end
                     rootPart.CFrame = CFrame.new(
                         getTweenLerpSteppPos(
                             rootPart.Position,
@@ -190,7 +196,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
                             getTweenTimeLeft(),
                             options.advance.states.jumpSkip.distance / options.tweenSpeed
                         )
-                    ) * (options.offset or CFrame.identity * rootPart.CFrame.Rotation)
+                    ) * options.offset
                 end
             })
         end
