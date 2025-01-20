@@ -138,7 +138,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
         if not options.offset.Rotation then
             options.offset = options.offset * CFrame.identity * rootPart.CFrame.Rotation
         end
-        goalCFrame =  goalCFrame * options.offset;
+        goalCFrame = goalCFrame * options.offset;
         local tweenInfo = TweenInfo.new(getTweenTimeLeft(), Enum.EasingStyle.Linear, Enum.EasingDirection.InOut);
         tweenData.tween = TweenService:Create(rootPart, tweenInfo, {CFrame = goalCFrame});
         tweenData.tween.Completed:Connect(function(playbackState)
