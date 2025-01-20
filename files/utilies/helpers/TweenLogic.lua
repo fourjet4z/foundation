@@ -182,7 +182,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
                     if not options.advance.states.pause.value then
                         tweenPause() --muss pause before change/set rootPart CFrame
                     end
-                    goalCFrame = goalCFrame * (options.offset or CFrame.identity * rootPart.CFrame.Rotation)
+                    -- goalCFrame = goalCFrame * (options.offset or CFrame.identity * rootPart.CFrame.Rotation) --alr set in tween (state 1)
                     rootPart.CFrame = CFrame.new(
                         getTweenLerpSteppPos(
                             rootPart.Position,
