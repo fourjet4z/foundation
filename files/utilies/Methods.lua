@@ -6,7 +6,19 @@
 
 local Methods = {};
 
-local sources = {game = game, math = math, string = string, table = table};
+local sources = {
+    game = game,
+    math = math,
+    string = string,
+    table = table
+};
+
+--special handling for instance methods like IsA, IsAncestorOf
+local function wrapInstanceMethod(obj, methodName)
+    return function(...)
+        return obj[methodName](obj, ...);
+    end;
+end;
 
 function Methods:Get(...)
     local methods = {...};
@@ -36,6 +48,9 @@ function Methods:Get(...)
             local source = sources[tableName];
             if (source) then
                 func = getMethod(source, methodKey, methodName);
+            elseif tableName == "Instance" then
+                --special case for Instance methods like IsA, IsAncestorOf
+                func = wrapInstanceMethod
             end;
         else
             for _, source in pairs(sources) do
