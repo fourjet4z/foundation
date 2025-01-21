@@ -20,7 +20,9 @@ local Players, UserInputService, RunService, Lighting, HttpService, TeleportServ
     "TeleportService"
 );
 
-PlaceId, JobId = game.PlaceId, game.JobId
+local PlaceId, JobId = game.PlaceId, game.JobId
+
+local httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
 
 local plrLcal = Players.LocalPlayer
 
@@ -259,10 +261,15 @@ local function fetchServersData(limit, cursor, sort, placeId)
 	local url = string.format("%s%s", format, (cursor and string.format("&cursor=%s", cursor)) or "")
 
 	local success, response = pcall(function()
-		return HttpService:JSONDecode(game:HttpGet(url))
+        if httprequest then
+            local req = httprequest({Url = url})
+            return HttpService:JSONDecode(req.Body) --body
+        else
+            return HttpService:JSONDecode(game:HttpGet(url)) --body
+        end
 	end)
 
-	if success and response and response.data then
+	if response and response.data then -- success and
 		return response.data, response.nextPageCursor
 	end
 
@@ -277,11 +284,17 @@ local function serversGet(serverLimit, getTimes, sort, onlyGetJobId, delay)
 	local nextPage
 	repeat
 		local servers
+        local retryWait = 0
 		repeat
 			print("looping,in")
 			servers, nextPage = fetchServersData(serverLimit, nextPage, sort, PlaceId)
-			if not servers then task.wait(math.random(175, 300)/100) end
-			if delay then task.wait(delay) end
+			if not servers then
+                task.wait(math.random(175, 300)/100 + retryWait)
+                task.wait(math.min(retryWait, 5))
+                retryWait = retryWait + 1
+            elseif delay then
+                task.wait(delay)
+            end
 		until servers
 
 		for _, server in ipairs(servers) do
