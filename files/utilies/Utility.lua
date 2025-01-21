@@ -212,7 +212,7 @@ function Utility:getBasePart(obj)
     return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
 end;
 
-function Utility:getinstanceWithGetDescendantsOf(obj, instance)
+function Utility:getInstanceWithGetDescendantsOf(obj, instance)
     for _, descendant in pairs(obj:GetDescendants()) do
         if (descendant == instance) then
             return descendant;
@@ -220,7 +220,7 @@ function Utility:getinstanceWithGetDescendantsOf(obj, instance)
     end;
 end;
 
-function Utility:getinstanceWithGetChildrenOf(obj, instance)
+function Utility:getInstanceWithGetChildrenOf(obj, instance)
     for _, child in pairs(obj:GetChildren()) do
         if (child == instance) then
             return child;
