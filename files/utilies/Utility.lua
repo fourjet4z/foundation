@@ -209,10 +209,12 @@ function Utility.randomString()
 end;
 
 function Utility:getBasePart(obj)
+    if (not obj) then return; end;
     return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
 end;
 
 function Utility:getInstanceWithGetDescendantsOf(obj, instance)
+    if (not obj or not instance or not IsAncestorOf(obj, instance)) then return; end;
     for _, descendant in pairs(obj:GetDescendants()) do
         if (descendant == instance) then
             return descendant;
@@ -221,6 +223,7 @@ function Utility:getInstanceWithGetDescendantsOf(obj, instance)
 end;
 
 function Utility:getInstanceWithGetChildrenOf(obj, instance)
+    if (not obj or not instance or not IsAncestorOf(obj, instance)) then return; end;
     for _, child in pairs(obj:GetChildren()) do
         if (child == instance) then
             return child;
@@ -229,6 +232,7 @@ function Utility:getInstanceWithGetChildrenOf(obj, instance)
 end;
 
 function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstance)
+    if (not obj) then return; end;
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
         if oneInstance then return obj; end
@@ -244,6 +248,7 @@ function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstanc
 end;
 
 function Utility:getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
+    if (not obj) then return; end;
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
         if oneInstance then return obj; end
@@ -259,6 +264,7 @@ function Utility:getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
 end;
 
 function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+    if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
         if oneInstance then return obj; end
@@ -274,6 +280,7 @@ function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, 
 end;
 
 function Utility:getChildrenIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+    if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
         if oneInstance then return obj; end
