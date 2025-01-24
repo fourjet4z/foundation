@@ -33,14 +33,19 @@ function Webhook:Send(ping, payload, yields)
 
     local function send()
         local succ, response = pcall(function()
-            return httprequest({
-                Url = self._url,
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json"
-                },
-                Body = HttpService:JSONEncode(payload)
-            });
+            local encodedPayload = HttpService:JSONEncode(payload);
+            if (httprequest) then
+                return httprequest({
+                    Url = self._url,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = encodedPayload
+                });
+            else
+                return HttpService:PostAsync(self._url, encodedPayload, Enum.HttpContentType.ApplicationJson);
+            end;
         end);
         return succ, response;
     end;
