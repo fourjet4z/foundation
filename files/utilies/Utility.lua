@@ -208,7 +208,7 @@ function Utility.randomString()
 	return table.concat(array);
 end;
 
-function Utility:getBasePart(obj)
+function Utility.getBasePart(obj)
     if (not obj) then return; end;
     return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
 end;
