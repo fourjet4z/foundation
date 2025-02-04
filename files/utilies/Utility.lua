@@ -301,7 +301,7 @@ function Utility.getSmallestSize(part)
     return math.min(partSize.X, partSize.Y, partSize.Y);
 end;
 
-function Utility.mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only override key_value ~= nil
+function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only override key_value ~= nil
     local merged = {};
     for key, value in pairs(defaults) do
         if (typeof(value) == "table" and typeof(overrides[key]) == "table") then
