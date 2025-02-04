@@ -17,16 +17,16 @@ local Utility = {};
 
 local mathFloor, stringFind, stringLower, IsA, IsAncestorOf = Methods:Get("math.floor", "string.find", "string.lower", "game.IsA", "game.IsAncestorOf")
 
-function Utility:getPlr(plr)
+function Utility.getPlr(plr)
     if (not plr) then return; end;
     return Players:FindFirstChild(tostring(plr))
 end
 
-function Utility:isPlrTeamate() end --custom needed
+function Utility.isPlrTeamate() end --custom needed
 
-function Utility:getPlrCharc() end --custom needed
+function Utility.getPlrCharc() end --custom needed
 
-function Utility:isPlrCharcHasRequiredInstances() end --custom needed
+function Utility.isPlrCharcHasRequiredInstances() end --custom needed
 
 function Utility.listenToChildAdded(folder, listener, options)
     assert(typeof(folder) == "Instance", "listenToChildAdded: Argument #1 (folder) must be an Instance");
@@ -167,9 +167,9 @@ end;
 Players.PlayerAdded:Connect(onPlrAdded);
 Players.PlayerRemoving:Connect(onPlrRemoving);
 
-function Utility:renderOverload(data) end;
+function Utility.renderOverload(data) end;
 
-function Utility:countTable(t)
+function Utility.countTable(t)
     local found = 0;
 
     for i, v in next, t do
@@ -195,7 +195,7 @@ function Utility.lookAt(atCFrame)
     camera.CFrame = newCF;
 end;
 
-function Utility:roundVector(vector) --ignore Y value, set to 0
+function Utility.roundVector(vector) --ignore Y value, set to 0
     return Vector3.new(vector.X, 0, vector.Z);
 end;
 
@@ -213,7 +213,7 @@ function Utility.getBasePart(obj)
     return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
 end;
 
-function Utility:getInstanceWithGetDescendantsOf(obj, instance)
+function Utility.getInstanceWithGetDescendantsOf(obj, instance)
     if (not obj or not instance or not IsAncestorOf(obj, instance)) then return; end;
     for _, descendant in pairs(obj:GetDescendants()) do
         if (descendant == instance) then
@@ -222,7 +222,7 @@ function Utility:getInstanceWithGetDescendantsOf(obj, instance)
     end;
 end;
 
-function Utility:getInstanceWithGetChildrenOf(obj, instance)
+function Utility.getInstanceWithGetChildrenOf(obj, instance)
     if (not obj or not instance or not IsAncestorOf(obj, instance)) then return; end;
     for _, child in pairs(obj:GetChildren()) do
         if (child == instance) then
@@ -231,7 +231,7 @@ function Utility:getInstanceWithGetChildrenOf(obj, instance)
     end;
 end;
 
-function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstance)
+function Utility.getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
@@ -247,7 +247,7 @@ function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstanc
     return not oneInstance and valids
 end;
 
-function Utility:getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
+function Utility.getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
@@ -263,7 +263,7 @@ function Utility:getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     return not oneInstance and valids
 end;
 
-function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+function Utility.getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
@@ -279,7 +279,7 @@ function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, 
     return not oneInstance and valids
 end;
 
-function Utility:getChildrenIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+function Utility.getChildrenIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
@@ -301,7 +301,7 @@ function Utility.getSmallestSize(part)
     return math.min(partSize.X, partSize.Y, partSize.Y);
 end;
 
-function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only override key_value ~= nil
+function Utility.mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only override key_value ~= nil
     local merged = {};
     for key, value in pairs(defaults) do
         if (typeof(value) == "table" and typeof(overrides[key]) == "table") then
