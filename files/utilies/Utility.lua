@@ -167,7 +167,7 @@ end;
 Players.PlayerAdded:Connect(onPlrAdded);
 Players.PlayerRemoving:Connect(onPlrRemoving);
 
-function Utility.renderOverload(data) end;
+function Utility:renderOverload(data) end;
 
 function Utility.countTable(t)
     local found = 0;
@@ -208,9 +208,9 @@ function Utility.randomString()
 	return table.concat(array);
 end;
 
-function Utility:getBasePart(obj)
+function Utility.getBasePart(obj)
     if (not obj) then return; end;
-    return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
+    return Utility.getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
 end;
 
 function Utility.getInstanceWithGetDescendantsOf(obj, instance)
@@ -263,7 +263,7 @@ function Utility.getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     return not oneInstance and valids
 end;
 
-function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+function Utility.getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
