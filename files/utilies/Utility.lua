@@ -263,7 +263,7 @@ function Utility.getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     return not oneInstance and valids
 end;
 
-function Utility.getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
