@@ -117,7 +117,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
 
     --input options override on defaults options if ~= value
     --return new table with combined options
-    options = Utility.mergeTables(defaults, options or {}, true)
+    options = Utility:mergeTables(defaults, options or {}, true)
 
     if (options.instant) then
         options.tweenSpeed = 5000;
