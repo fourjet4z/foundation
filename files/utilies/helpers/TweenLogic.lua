@@ -117,7 +117,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
 
     --input options override on defaults options if ~= value
     --return new table with combined options
-    options = Utility:mergeTables(defaults, options or {}, true)
+    options = Utility.mergeTables(defaults, options or {}, true)
 
     if (options.instant) then
         options.tweenSpeed = 5000;
@@ -129,7 +129,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
     local function getTweenTimeLeft()
         local distance = (rootPart.Position - goalCFrame.Position).Magnitude;
         if (options.tweenSpeedIgnoreY) then
-            distance = Utility:roundVector(rootPart.Position - goalCFrame.Position).Magnitude;
+            distance = Utility.roundVector(rootPart.Position - goalCFrame.Position).Magnitude;
         end;
         return distance / options.tweenSpeed
     end
@@ -575,7 +575,7 @@ return Tween;
 
 --use:
 
---function Utility:getPlrCharc(plr)
+--function Utility.getPlrCharc(plr)
 --    plr = self:getPlr(plr)
 --    if plr and plr.Character then
 --        return plr.Character
@@ -634,7 +634,7 @@ return Tween;
 --local Players = Services:Get("Players");
 --local plrLcal = Players.LocalPlayer
 
---local plrLcalCharc = Utility:getPlrCharc(plrLcal)
+--local plrLcalCharc = Utility.getPlrCharc(plrLcal)
 --local plrLcalRootPart = plrLcalCharc["HumanoidRootPart"]
 --local plrLcalHum = plrLcalCharc["Humanoid"]
 
