@@ -575,7 +575,7 @@ return Tween;
 
 --use:
 
---function Utility.getPlrCharc(plr)
+--function Utility:getPlrCharc(plr)
 --    plr = self:getPlr(plr)
 --    if plr and plr.Character then
 --        return plr.Character
@@ -634,7 +634,7 @@ return Tween;
 --local Players = Services:Get("Players");
 --local plrLcal = Players.LocalPlayer
 
---local plrLcalCharc = Utility.getPlrCharc(plrLcal)
+--local plrLcalCharc = Utility:getPlrCharc(plrLcal)
 --local plrLcalRootPart = plrLcalCharc["HumanoidRootPart"]
 --local plrLcalHum = plrLcalCharc["Humanoid"]
 
