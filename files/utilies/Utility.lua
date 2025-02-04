@@ -17,16 +17,16 @@ local Utility = {};
 
 local mathFloor, stringFind, stringLower, IsA, IsAncestorOf = Methods:Get("math.floor", "string.find", "string.lower", "game.IsA", "game.IsAncestorOf")
 
-function Utility.getPlr(plr)
+function Utility:getPlr(plr)
     if (not plr) then return; end;
     return Players:FindFirstChild(tostring(plr))
 end
 
-function Utility.isPlrTeamate() end --custom needed
+function Utility:isPlrTeamate() end --custom needed
 
-function Utility.getPlrCharc() end --custom needed
+function Utility:getPlrCharc() end --custom needed
 
-function Utility.isPlrCharcHasRequiredInstances() end --custom needed
+function Utility:isPlrCharcHasRequiredInstances() end --custom needed
 
 function Utility.listenToChildAdded(folder, listener, options)
     assert(typeof(folder) == "Instance", "listenToChildAdded: Argument #1 (folder) must be an Instance");
