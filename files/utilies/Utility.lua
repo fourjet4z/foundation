@@ -184,7 +184,7 @@ function Utility.isBetweenAt(pos1, po2, factorDis)
     return factorDis and factorDis >= betweenDis, betweenDis
 end
 
-function Utility.lookAt(atCFrame)
+function Utility:lookAt(atCFrame)
     local camera = workspace.CurrentCamera;
     local cameraPos = camera.CFrame.Position;
 
@@ -208,12 +208,12 @@ function Utility.randomString()
 	return table.concat(array);
 end;
 
-function Utility.getBasePart(obj)
+function Utility:getBasePart(obj)
     if (not obj) then return; end;
-    return Utility.getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
+    return self:getDescendantsIncludeClassNameOf(obj, "BasePart", true, true)
 end;
 
-function Utility.getInstanceWithGetDescendantsOf(obj, instance)
+function Utility:getInstanceWithGetDescendantsOf(obj, instance)
     if (not obj or not instance or not IsAncestorOf(obj, instance)) then return; end;
     for _, descendant in pairs(obj:GetDescendants()) do
         if (descendant == instance) then
@@ -222,7 +222,7 @@ function Utility.getInstanceWithGetDescendantsOf(obj, instance)
     end;
 end;
 
-function Utility.getInstanceWithGetChildrenOf(obj, instance)
+function Utility:getInstanceWithGetChildrenOf(obj, instance)
     if (not obj or not instance or not IsAncestorOf(obj, instance)) then return; end;
     for _, child in pairs(obj:GetChildren()) do
         if (child == instance) then
@@ -231,7 +231,7 @@ function Utility.getInstanceWithGetChildrenOf(obj, instance)
     end;
 end;
 
-function Utility.getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstance)
+function Utility:getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
@@ -247,7 +247,7 @@ function Utility.getDescendantsIncludeNameOf(obj, name, selfInstance, oneInstanc
     return not oneInstance and valids
 end;
 
-function Utility.getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
+function Utility:getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and stringFind(stringLower(obj.Name), name)) then
@@ -263,7 +263,7 @@ function Utility.getChildrenIncludeNameOf(obj, name, selfInstance, oneInstance)
     return not oneInstance and valids
 end;
 
-function Utility.getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+function Utility:getDescendantsIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
@@ -279,7 +279,7 @@ function Utility.getDescendantsIncludeClassNameOf(obj, className, selfInstance, 
     return not oneInstance and valids
 end;
 
-function Utility.getChildrenIncludeClassNameOf(obj, className, selfInstance, oneInstance)
+function Utility:getChildrenIncludeClassNameOf(obj, className, selfInstance, oneInstance)
     if (not obj) then return; end;
     local valids = {};
     if (selfInstance and IsA(obj, className)) then
@@ -295,7 +295,7 @@ function Utility.getChildrenIncludeClassNameOf(obj, className, selfInstance, one
     return not oneInstance and valids
 end;
 
-function Utility.getSmallestSize(part)
+function Utility:getSmallestSize(part)
     if (not IsA(part, "BasePart")) then return nil; end;
     local partSize = part.Size;
     return math.min(partSize.X, partSize.Y, partSize.Y);
@@ -326,7 +326,7 @@ function Utility:mergeTables(defaults, overrides, ignoreKeyNotInDefaults) --only
     return merged;
 end;
 
-function Utility.getAllParents(obj)
+function Utility:getAllParents(obj)
     if (not obj or not obj.Parent) then return; end;
     local parents = {};
     local function collectParent(current)
