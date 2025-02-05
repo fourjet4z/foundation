@@ -173,7 +173,7 @@ function basics.destroyNoPhysics(part)
 end;
 
 function basics.destroyPhysics(part)
-    local localBdVelcs = Utility.getInstancesClassNameOf(part, "BodyVelocity", false) or {};
+    local localBdVelcs = Utility:getInstancesClassNameOf(part, "BodyVelocity", false) or {};
     for _, bdVelc in pairs(localBdVelcs) do
         bdVelc:Destroy();
     end;
@@ -181,7 +181,7 @@ end;
 
 local lastFogsDensity = {};
 function basics.noFog(toggle)
-    local atmospheres = Utility.getInstancesClassNameOf(Lighting, "Atmosphere", false) or {};
+    local atmospheres = Utility:getInstancesClassNameOf(Lighting, "Atmosphere", false) or {};
     for _, atmosphere in pairs(atmospheres) do
         if (not toggle) then
             bigSlave.noFog:RemoveAllTasks();
@@ -201,8 +201,8 @@ function basics.noFog(toggle)
 end;
 
 function basics.noBlur(toggle)
-    local blurs = Utility.getInstancesClassNameOf(Lighting, "BlurEffect", false) or {};
-    local depthOfFields = Utility.getInstancesClassNameOf(Lighting, "DepthOfFieldEffect", false) or {};
+    local blurs = Utility:getInstancesClassNameOf(Lighting, "BlurEffect", false) or {};
+    local depthOfFields = Utility:getInstancesClassNameOf(Lighting, "DepthOfFieldEffect", false) or {};
     for _, blur in pairs(blurs) do
         if (not toggle) then
             bigSlave.noBlur:RemoveAllTasks();
