@@ -206,7 +206,7 @@ function Tween:tweenTeleport(m, rp, hu, goalCFrame, options)
 
     local states = getStates()
 
-    if options.followCamera then Utility.lookAt(goalCFrame) end
+    if options.followCamera then Utility:lookAt(goalCFrame) end
 
     if options.advance.value then
         if options.advance.skipTweenToEnd.activeAfterStartTweenTime then
@@ -483,7 +483,7 @@ function Tween:travel(m, rp, hu, list, target, options, onlyGoThroughDoor, goCen
 							hum:ChangeState(Enum.HumanoidStateType.Jumping)
 							savedTick = tick()
 						end
-					until not isHasRequiredInstances() or not Utility.isBetweenAt(rootPart.Position, point.Position, Utility.getSmallestSize(rootPart))
+					until not isHasRequiredInstances() or not Utility.isBetweenAt(rootPart.Position, point.Position, Utility:getSmallestSize(rootPart))
 				end
 
                 if not isHasRequiredInstances() then
